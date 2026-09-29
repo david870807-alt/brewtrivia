@@ -1,0 +1,15 @@
+{
+  "name": "BrewTrivia",
+  "short_name": "BrewTrivia",
+  "description": "Bar trivia near you. Scan, play, win.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A1330",
+  "theme_color": "#0A1330",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
