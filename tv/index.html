@@ -56,7 +56,7 @@ body.idle:not(.setup-mode), body.idle:not(.setup-mode) *{cursor:none !important}
 .tag{padding:calc(var(--u)*.75) calc(var(--u)*1.7);border-radius:99px;border:2px solid var(--line);font-size:calc(var(--u)*1.95);font-weight:600;color:var(--muted);white-space:nowrap}
 .tag.gold{border-color:rgba(232,169,60,.6);color:var(--gold)}
 
-.enter{animation:enter .6s cubic-bezier(.2,.7,.2,1) both}
+.enter{animation:enter .4s cubic-bezier(.2,.7,.2,1) both}
 @keyframes enter{from{opacity:0;transform:translateY(calc(var(--u)*2.4))}to{opacity:1;transform:none}}
 
 /* ---------- lobby ---------- */
@@ -98,7 +98,7 @@ body.idle:not(.setup-mode), body.idle:not(.setup-mode) *{cursor:none !important}
 .tile{position:relative;display:flex;align-items:center;gap:calc(var(--u)*2.1);min-height:calc(var(--u)*12.4);padding:calc(var(--u)*1.9) calc(var(--u)*2.5);
   background:var(--card);border:2px solid var(--line);border-radius:calc(var(--u)*2.2);overflow:hidden;
   transition:opacity .55s, background-color .55s, border-color .55s, color .55s, transform .55s;
-  animation:enter .55s cubic-bezier(.2,.7,.2,1) backwards}
+  animation:enter .4s cubic-bezier(.2,.7,.2,1) backwards}
 .tile .bar{position:absolute;inset:0 auto 0 0;width:0;background:rgba(245,235,217,.08);transition:width 1s cubic-bezier(.2,.7,.2,1) .25s}
 .tile .key{position:relative;flex:0 0 auto;width:calc(var(--u)*6.4);height:calc(var(--u)*6.4);border-radius:calc(var(--u)*1.4);background:var(--deep);
   color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(var(--u)*3.3)}
@@ -307,22 +307,33 @@ function loadVenues(){
     .then(function(v){ S.venues = v || []; return S.venues; });
 }
 
+/* One request at a time. A poll() asked for while a request is in flight runs right after it,
+   so extra triggers (countdown end, tab wake-up) never start a second polling loop. */
+var POLL_MS = 750;
+var inflight = false, pollAgain = false;
+function schedule(ms){ clearTimeout(S.timer); S.timer = setTimeout(poll, ms); }
 function poll(){
   clearTimeout(S.timer);
   var id = S.venueId;
   if (!id) return;
+  if (inflight) { pollAgain = true; return; }
+  inflight = true;
   api('/rest/v1/rpc/tv_state', { venue: id }).then(function(d){
-    if (id !== S.venueId) return;
+    inflight = false;
+    var again = pollAgain; pollAgain = false;
+    if (id !== S.venueId) { if (S.venueId) schedule(0); return; }
     S.fail = 0; $('#conn').hidden = true;
     if (d && d.server_now) S.offset = Date.parse(d.server_now) - Date.now();
     apply(d);
-    S.timer = setTimeout(poll, d && d.status === 'finished' ? 6000 : 1500);
+    schedule(again ? 0 : (d && d.status === 'finished' ? 6000 : POLL_MS));
   }).catch(function(){
-    if (id !== S.venueId) return;
+    inflight = false;
+    pollAgain = false;
+    if (id !== S.venueId) { if (S.venueId) schedule(0); return; }
     S.fail++;
     if (S.fail >= 2) $('#conn').hidden = false;
     if (!S.data) showMessage('Can’t reach BrewTrivia', 'Check this computer’s internet connection. Retrying on its own…', false);
-    S.timer = setTimeout(poll, S.fail > 3 ? 4000 : 2000);
+    schedule(S.fail > 3 ? 4000 : 2000);
   });
 }
 
@@ -453,7 +464,7 @@ function questionHTML(d){
     cls = t === 'tf' ? 'tf' : (ans.length === 3 ? 'c3' : '');
     body = '<div class="answers ' + cls + '">';
     for (i = 0; i < ans.length; i++) {
-      body += '<div class="tile" data-i="' + i + '" style="animation-delay:' + (0.18 + i * 0.08).toFixed(2) + 's"><div class="bar"></div>' +
+      body += '<div class="tile" data-i="' + i + '" style="animation-delay:' + (0.08 + i * 0.05).toFixed(2) + 's"><div class="bar"></div>' +
               (t === 'tf' ? '' : '<span class="key">' + keys.charAt(i) + '</span>') +
               '<span class="txt">' + esc(ans[i]) + '</span><span class="cnt"></span></div>';
     }
@@ -523,7 +534,7 @@ function tickCountdown(){
   if (left <= 0 && !S.locking) {
     S.locking = true;
     updateQuestion(d);
-    setTimeout(function(){ S.locking = false; poll(); }, 400);
+    setTimeout(function(){ S.locking = false; poll(); }, 150);
   }
 }
 setInterval(tickCountdown, 200);
