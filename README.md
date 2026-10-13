@@ -1,3 +1,13 @@
+> **Current use of this repo (Oct 2026)**
+>
+> - The live BrewTrivia app runs on **Netlify** at **https://brewtrivia.com** — its source is not in this repo.
+> - This repo's GitHub Pages site now hosts only the **audience TV screen** (`tv/index.html`) at
+>   **https://david870807-alt.github.io/brewtrivia/tv/** — open it on the laptop plugged into the bar TV,
+>   pick the venue once (or add `?venue=<venue id>` to the link), press **F** for full screen.
+>   It reads the Supabase RPC `tv_state(venue)` with the public key only, so no one signs in on the TV.
+> - The root page just redirects to brewtrivia.com. The original v1 app (described below) is
+>   kept in git history at commit `95e08ec`; it no longer matches the live database schema.
+
 # BrewTrivia — deploy in about 20 minutes
 
 No build step, no server to run. Two services, both free to start:

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BrewTrivia TV</title>
+<meta name="theme-color" content="#0A1330">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230A1330'/%3E%3Cpath d='M150 172h212v40h-86v168h-40V212h-86z' fill='%23E8A93C'/%3E%3Ccircle cx='256' cy='418' r='14' fill='%233FA093'/%3E%3Cpath d='M120 130c40-22 232-22 272 0' stroke='%233FA093' stroke-width='14' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0A1330; --deep:#0F1D45; --card:#16265A; --line:#283B75;
+  --gold:#E8A93C; --gold-soft:rgba(232,169,60,.16); --brick:#C8492D; --teal:#3FA093;
+  --cream:#F5EBD9; --muted:#93A4CE; --ink:#3B4A7A;
+  --display:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --body:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --u:min(1vh, 0.5625vw);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#050A1C;color:var(--cream);font-family:var(--body);overflow:hidden;-webkit-font-smoothing:antialiased}
+body{display:flex;align-items:center;justify-content:center}
+body.idle:not(.setup-mode), body.idle:not(.setup-mode) *{cursor:none !important}
+
+#stage{position:relative;width:calc(var(--u)*177.78);height:calc(var(--u)*100);overflow:hidden;display:flex;flex-direction:column;
+  padding:calc(var(--u)*4.2) calc(var(--u)*5.4) calc(var(--u)*3.8);
+  background:radial-gradient(110% 85% at 12% 0%, #15275E 0%, var(--night) 58%), var(--night)}
+
+/* ---------- header ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;height:calc(var(--u)*5);flex:0 0 auto}
+.brand{display:flex;align-items:center;gap:calc(var(--u)*1.5);min-width:0}
+.mark{width:calc(var(--u)*2.7);height:calc(var(--u)*3.8);flex:0 0 auto}
+.word{font-family:var(--display);font-size:calc(var(--u)*3.5);line-height:1;white-space:nowrap}
+.word b{font-weight:400;color:var(--gold)}
+.sep{width:2px;height:calc(var(--u)*2.8);background:var(--line);flex:0 0 auto}
+#venueName{font-weight:600;color:var(--muted);font-size:calc(var(--u)*2.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tracker{display:flex;align-items:center;gap:calc(var(--u)*.9);flex:0 0 auto}
+.tracker .lbl{font-size:calc(var(--u)*1.7);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-right:calc(var(--u)*.6);font-weight:600}
+.pill{min-width:calc(var(--u)*4.4);height:calc(var(--u)*4.4);padding:0 calc(var(--u)*1.4);border-radius:99px;border:2px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(var(--u)*2);color:var(--muted)}
+.pill.done{border-color:transparent;background:rgba(245,235,217,.08);color:rgba(245,235,217,.5)}
+.pill.now{border-color:var(--gold);background:var(--gold);color:var(--night)}
+
+#scene{flex:1;min-height:0;position:relative;margin-top:calc(var(--u)*3.2)}
+#scene > section{height:100%}
+
+/* ---------- footer ---------- */
+.foot{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:calc(var(--u)*3);margin-top:calc(var(--u)*2.4);
+  min-height:calc(var(--u)*4);font-size:calc(var(--u)*2.15);color:var(--muted)}
+.foot b{color:var(--cream);font-weight:600}
+.miniqr{display:flex;align-items:center;gap:calc(var(--u)*1.4);white-space:nowrap}
+.miniqr .qr{width:calc(var(--u)*8.6);height:calc(var(--u)*8.6);padding:calc(var(--u)*.9);background:var(--cream);border-radius:calc(var(--u)*1.1);display:block}
+
+.eyebrow{font-size:calc(var(--u)*2.1);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.tag{padding:calc(var(--u)*.75) calc(var(--u)*1.7);border-radius:99px;border:2px solid var(--line);font-size:calc(var(--u)*1.95);font-weight:600;color:var(--muted);white-space:nowrap}
+.tag.gold{border-color:rgba(232,169,60,.6);color:var(--gold)}
+
+.enter{animation:enter .6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes enter{from{opacity:0;transform:translateY(calc(var(--u)*2.4))}to{opacity:1;transform:none}}
+
+/* ---------- lobby ---------- */
+.lobby{display:grid;grid-template-columns:1fr calc(var(--u)*46);grid-template-rows:1fr auto;column-gap:calc(var(--u)*7)}
+.lobby .left{grid-column:1;grid-row:1;display:flex;flex-direction:column;min-height:0}
+.lobby .right{grid-column:2;grid-row:1 / span 2;display:flex;align-items:center;justify-content:center}
+.lobby .wall{grid-column:1;grid-row:2;padding-top:calc(var(--u)*2.6)}
+.headline{font-family:var(--display);font-weight:400;font-size:calc(var(--u)*10.6);line-height:.97;margin-top:calc(var(--u)*1.8);letter-spacing:-.012em}
+.headline em{color:var(--gold)}
+.steps{list-style:none;margin-top:calc(var(--u)*4.2);display:flex;flex-direction:column;gap:calc(var(--u)*1.9)}
+.steps li{display:flex;align-items:center;gap:calc(var(--u)*2.1);font-size:calc(var(--u)*3.1);font-weight:500}
+.steps .n{flex:0 0 auto;width:calc(var(--u)*5.2);height:calc(var(--u)*5.2);border-radius:50%;border:2px solid var(--gold);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:calc(var(--u)*3.2);line-height:1}
+.steps strong{color:var(--gold);font-weight:600}
+.prize{margin-top:calc(var(--u)*3.6);align-self:flex-start;display:inline-flex;align-items:center;gap:calc(var(--u)*1.3);
+  padding:calc(var(--u)*1.3) calc(var(--u)*2.6);border-radius:99px;background:var(--gold-soft);color:var(--gold);font-weight:600;font-size:calc(var(--u)*2.6)}
+.prize svg{width:calc(var(--u)*3);height:calc(var(--u)*3)}
+.qrcard{background:var(--cream);color:var(--night);border-radius:calc(var(--u)*3.2);padding:calc(var(--u)*4.2) calc(var(--u)*4.2) calc(var(--u)*3.6);
+  display:flex;flex-direction:column;align-items:center;box-shadow:0 calc(var(--u)*2) calc(var(--u)*6) rgba(0,0,0,.35)}
+.qrcard .qr{width:calc(var(--u)*34);height:calc(var(--u)*34);display:block}
+.qrcard .url{font-family:var(--display);font-size:calc(var(--u)*5);margin-top:calc(var(--u)*2.4);line-height:1}
+.qrcard .code{margin-top:calc(var(--u)*1.3);font-size:calc(var(--u)*1.9);letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--ink)}
+.wall .count{font-size:calc(var(--u)*2.3);color:var(--muted);font-weight:500;margin-bottom:calc(var(--u)*1.5)}
+.wall .count b{color:var(--cream);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:calc(var(--u)*1.1);max-height:calc(var(--u)*11.6);overflow:hidden}
+.chip{padding:calc(var(--u)*.95) calc(var(--u)*2);border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:calc(var(--u)*2.3);font-weight:600;white-space:nowrap}
+.chip.new{animation:pop .55s cubic-bezier(.2,.9,.3,1.35) both;border-color:var(--gold)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+
+/* ---------- question ---------- */
+.q{display:grid;grid-template-columns:1fr calc(var(--u)*28);column-gap:calc(var(--u)*5.5)}
+.q .main{display:flex;flex-direction:column;min-height:0;min-width:0}
+.qhead{display:flex;align-items:center;gap:calc(var(--u)*1.6);flex-wrap:wrap}
+.qhead .eyebrow{margin-right:calc(var(--u)*.6)}
+.qwrap{flex:1 1 0;min-height:0;display:flex;align-items:center;overflow:hidden;margin:calc(var(--u)*1.8) 0 calc(var(--u)*2.2)}
+.qtext{font-family:var(--display);font-weight:400;font-size:calc(var(--u)*9.4);line-height:1.06;letter-spacing:-.008em;width:100%}
+.answers{margin-top:auto;display:grid;gap:calc(var(--u)*1.9);grid-template-columns:1fr 1fr}
+.answers.c3{grid-template-columns:repeat(3,1fr)}
+.tile{position:relative;display:flex;align-items:center;gap:calc(var(--u)*2.1);min-height:calc(var(--u)*12.4);padding:calc(var(--u)*1.9) calc(var(--u)*2.5);
+  background:var(--card);border:2px solid var(--line);border-radius:calc(var(--u)*2.2);overflow:hidden;
+  transition:opacity .55s, background-color .55s, border-color .55s, color .55s, transform .55s;
+  animation:enter .55s cubic-bezier(.2,.7,.2,1) backwards}
+.tile .bar{position:absolute;inset:0 auto 0 0;width:0;background:rgba(245,235,217,.08);transition:width 1s cubic-bezier(.2,.7,.2,1) .25s}
+.tile .key{position:relative;flex:0 0 auto;width:calc(var(--u)*6.4);height:calc(var(--u)*6.4);border-radius:calc(var(--u)*1.4);background:var(--deep);
+  color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:calc(var(--u)*3.3)}
+.tile .txt{position:relative;flex:1;min-width:0;font-size:calc(var(--u)*4.8);font-weight:600;line-height:1.12;max-height:calc(var(--u)*10);overflow:hidden}
+.tile .cnt{position:relative;flex:0 0 auto;font-size:calc(var(--u)*2.4);font-weight:600;color:var(--muted);opacity:0;transition:opacity .4s .5s;white-space:nowrap}
+.answers.tf .tile{justify-content:center;min-height:calc(var(--u)*17)}
+.answers.tf .tile .txt{flex:0 1 auto;font-family:var(--display);font-weight:400;font-size:calc(var(--u)*8);text-align:center}
+.answers.tf .tile .cnt{position:absolute;right:calc(var(--u)*2.5);bottom:calc(var(--u)*1.8)}
+.q.reveal .tile{opacity:.34}
+.q.reveal .tile .cnt{opacity:1}
+.q.reveal .tile.ok{opacity:1;background:var(--teal);border-color:var(--teal);color:var(--night);transform:scale(1.02)}
+.q.reveal .tile.ok .key{background:rgba(10,19,48,.18);color:var(--night)}
+.q.reveal .tile.ok .cnt{color:var(--night)}
+.q.reveal .tile.ok .bar{background:rgba(10,19,48,.13)}
+.numpanel{margin-top:auto;display:flex;align-items:center;gap:calc(var(--u)*3.4);padding:calc(var(--u)*3.2) calc(var(--u)*3.6);
+  border-radius:calc(var(--u)*2.4);background:var(--card);border:2px solid var(--line);transition:background-color .55s, border-color .55s, color .55s}
+.numpanel .hash{font-family:var(--display);font-size:calc(var(--u)*13);line-height:.8;color:var(--gold)}
+.numpanel .say{font-size:calc(var(--u)*3.8);font-weight:600}
+.numpanel .sub{font-size:calc(var(--u)*2.3);color:var(--muted);margin-top:calc(var(--u)*.8)}
+.numpanel .ans{font-family:var(--display);font-size:calc(var(--u)*13);line-height:.85}
+.q.reveal .numpanel{background:var(--teal);border-color:var(--teal);color:var(--night)}
+.q.reveal .numpanel .sub{color:rgba(10,19,48,.7)}
+
+.rail{display:flex;flex-direction:column;align-items:center;justify-content:space-between;min-height:0}
+.status{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:calc(var(--u)*1.2);min-height:calc(var(--u)*21)}
+.status .ic{width:calc(var(--u)*9);height:calc(var(--u)*9)}
+.status .st-main{font-size:calc(var(--u)*2.7);font-weight:600;line-height:1.2}
+.status .st-sub{font-size:calc(var(--u)*2);color:var(--muted)}
+.ring{position:relative;width:calc(var(--u)*16);height:calc(var(--u)*16)}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7}
+.ring .bg{stroke:var(--line)}
+.ring .fg{stroke:var(--brick);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:calc(var(--u)*8.4);line-height:1}
+.lastcall{font-size:calc(var(--u)*2.2);letter-spacing:.24em;text-transform:uppercase;color:var(--brick);font-weight:700}
+.lastcall.pulse{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.45}}
+.glass{width:calc(var(--u)*19);height:calc(var(--u)*28.5);display:block}
+#liquid{transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.bubbles circle{fill:rgba(255,246,220,.55);animation:rise 3.4s linear infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-110px);opacity:0}}
+.meter{text-align:center;margin-top:calc(var(--u)*1.6)}
+.meter .val{font-size:calc(var(--u)*5.4);font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.meter .val small{font-size:calc(var(--u)*3.2);color:var(--muted);font-weight:600}
+.meter .lab{font-size:calc(var(--u)*2.15);color:var(--muted);margin-top:calc(var(--u)*.8);font-weight:500}
+.q.reveal .meter .val{color:var(--teal)}
+
+/* ---------- standings ---------- */
+.standings{display:flex;flex-direction:column}
+.st-title{font-family:var(--display);font-weight:400;font-size:calc(var(--u)*7.6);line-height:1;margin-top:calc(var(--u)*1.4)}
+.board{margin-top:calc(var(--u)*3.4);flex:1;min-height:0;display:grid;grid-auto-flow:column;column-gap:calc(var(--u)*4);row-gap:calc(var(--u)*1.4);
+  grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),minmax(0,1fr))}
+.row{position:relative;display:flex;align-items:center;gap:calc(var(--u)*2.2);padding:0 calc(var(--u)*2.6);border-radius:calc(var(--u)*1.8);
+  background:var(--card);border:2px solid var(--line);overflow:hidden;min-height:0;animation:enter .55s cubic-bezier(.2,.7,.2,1) backwards}
+.row .bar{position:absolute;inset:0 auto 0 0;width:0;background:rgba(245,235,217,.05);transition:width 1.1s cubic-bezier(.2,.7,.2,1) .3s}
+.row .rk{position:relative;font-family:var(--display);font-size:calc(var(--u)*4.6);width:calc(var(--u)*5);color:var(--muted);line-height:1}
+.row .nm{position:relative;flex:1;min-width:0;font-size:calc(var(--u)*3.3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .pl{position:relative;font-size:calc(var(--u)*2);color:var(--muted);white-space:nowrap}
+.row .sc{position:relative;font-size:calc(var(--u)*4.2);font-weight:700;font-variant-numeric:tabular-nums;min-width:calc(var(--u)*7);text-align:right}
+.row.lead{border-color:var(--gold);background:linear-gradient(90deg, rgba(232,169,60,.24), rgba(232,169,60,.06))}
+.row.lead .rk{color:var(--gold)}
+.more{font-size:calc(var(--u)*2.2);color:var(--muted);margin-top:calc(var(--u)*1.6)}
+
+/* ---------- finished ---------- */
+.fin{display:grid;grid-template-columns:1.2fr 1fr;column-gap:calc(var(--u)*7)}
+.champ{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.champ .name{font-family:var(--display);font-weight:400;font-size:calc(var(--u)*14);line-height:.95;color:var(--gold);margin-top:calc(var(--u)*2.2);
+  max-height:calc(var(--u)*28);overflow:hidden;animation:crown .9s cubic-bezier(.2,.8,.2,1.2) .15s both}
+@keyframes crown{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
+.champ .meta{font-size:calc(var(--u)*3);margin-top:calc(var(--u)*2.6);font-weight:600}
+.champ .meta span{color:var(--muted);font-weight:500}
+.champ .won{margin-top:calc(var(--u)*2.6);align-self:flex-start}
+.champ .thanks{margin-top:calc(var(--u)*5);font-size:calc(var(--u)*2.6);color:var(--muted);line-height:1.4}
+.champ .thanks b{color:var(--cream);font-weight:600}
+.rest{display:flex;flex-direction:column;justify-content:center;gap:calc(var(--u)*1.3);min-width:0}
+.rest .row{min-height:calc(var(--u)*7.6);flex:0 0 auto}
+.rest .hd{font-size:calc(var(--u)*1.9);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:calc(var(--u)*.6)}
+
+/* ---------- setup / messages ---------- */
+.setup,.msg{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.setup h1,.msg h1{font-family:var(--display);font-weight:400;font-size:calc(var(--u)*8.6);line-height:1;margin-top:calc(var(--u)*1.6)}
+.setup p,.msg p{font-size:calc(var(--u)*2.6);color:var(--muted);max-width:calc(var(--u)*96);margin-top:calc(var(--u)*2);line-height:1.45}
+.search{margin-top:calc(var(--u)*3.6);width:calc(var(--u)*84);font:600 calc(var(--u)*3) var(--body);padding:calc(var(--u)*2) calc(var(--u)*2.6);
+  border-radius:calc(var(--u)*1.8);background:var(--deep);border:2px solid var(--line);color:var(--cream);outline:none}
+.search:focus{border-color:var(--gold)}
+.search::placeholder{color:var(--muted);opacity:.7}
+.vlist{margin-top:calc(var(--u)*1.8);width:calc(var(--u)*84);max-height:calc(var(--u)*36);overflow:auto;display:flex;flex-direction:column;gap:calc(var(--u)*1.1);text-align:left}
+.vbtn{display:flex;justify-content:space-between;align-items:center;gap:calc(var(--u)*2);padding:calc(var(--u)*2) calc(var(--u)*2.6);border-radius:calc(var(--u)*1.8);
+  background:var(--card);border:2px solid var(--line);color:var(--cream);font:600 calc(var(--u)*2.9) var(--body);cursor:pointer;text-align:left}
+.vbtn small{font-size:calc(var(--u)*2.1);color:var(--muted);font-weight:500;white-space:nowrap}
+.vbtn:hover,.vbtn:focus-visible{border-color:var(--gold);outline:none}
+.hint{font-size:calc(var(--u)*2.3);color:var(--muted);padding:calc(var(--u)*2)}
+.tip{font-size:calc(var(--u)*2.1) !important;margin-top:calc(var(--u)*2.6) !important}
+kbd{display:inline-block;font:700 .85em var(--body);padding:.1em .5em;border-radius:.35em;border:1px solid var(--line);background:var(--deep);color:var(--cream)}
+.btn{margin-top:calc(var(--u)*3.4);font:600 calc(var(--u)*2.6) var(--body);padding:calc(var(--u)*1.8) calc(var(--u)*3.4);border-radius:99px;border:0;background:var(--gold);color:var(--night);cursor:pointer}
+.spin{width:calc(var(--u)*6);height:calc(var(--u)*6);border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- overlays ---------- */
+.conn{position:fixed;top:2vh;right:2vh;background:var(--brick);color:var(--cream);font:600 1.7vh var(--body);padding:.9vh 1.8vh;border-radius:99px;z-index:5}
+.conn[hidden]{display:none}
+.controls{position:fixed;right:2vh;bottom:2vh;display:flex;gap:1vh;opacity:0;transition:opacity .3s;pointer-events:none;z-index:5}
+body.active .controls{opacity:1;pointer-events:auto}
+.controls button{font:600 1.6vh var(--body);background:rgba(22,38,90,.94);color:var(--cream);border:1px solid var(--line);border-radius:99px;padding:1vh 1.8vh;cursor:pointer}
+.controls button:hover{border-color:var(--gold)}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <header class="top">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 30 42" aria-hidden="true">
+        <path d="M3 3 H27 L24.4 37.5 Q24.2 39.5 22.2 39.5 H7.8 Q5.8 39.5 5.6 37.5 Z" fill="none" stroke="#F5EBD9" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M5.3 13 H24.7 L23.2 36.8 Q23.1 37.8 22.1 37.8 H7.9 Q6.9 37.8 6.8 36.8 Z" fill="#E8A93C"/>
+        <path d="M4.6 9.5 Q7 6.8 9.4 9.5 Q11.8 6.8 14.2 9.5 Q16.6 6.8 19 9.5 Q21.4 6.8 23.8 9.5 L25.3 9.5 L25 13 H5 Z" fill="#F5EBD9"/>
+      </svg>
+      <span class="word"><b>Brew</b>Trivia</span>
+      <span class="sep" id="sep" hidden></span>
+      <span id="venueName"></span>
+    </div>
+    <div class="tracker" id="tracker"></div>
+  </header>
+  <main id="scene"></main>
+  <footer class="foot" id="foot"></footer>
+</div>
+<div class="conn" id="conn" hidden>Reconnecting…</div>
+<div class="controls" id="controls">
+  <button type="button" id="btnFull">Full screen <kbd>F</kbd></button>
+  <button type="button" id="btnVenue">Change venue <kbd>C</kbd></button>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* BrewTrivia audience screen. Read-only: it never signs in and never sees host controls.
+   The answer only arrives from the server after the question locks. */
+var SB_URL = 'https://pnjefnkzqyrszfkxwwoj.supabase.co';
+var SB_KEY = 'sb_publishable_ZnI0_FldJEzkMiaYx1SMIQ_hc0uGBNP';
+var STORE = 'brewtrivia.tv.venue';
+var LAST_CALL_SECONDS = 30;
+var QR_N = 25;
+var QR_PATH = 'M0 0h7v1h-7zM8 0h3v1h-3zM12 0h3v1h-3zM18 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h2v1h-2zM12 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM13 2h1v1h-1zM15 2h2v1h-2zM18 2h1v1h-1zM20 2h3v1h-3zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM10 3h1v1h-1zM13 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM20 3h3v1h-3zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h3v1h-3zM14 4h1v1h-1zM18 4h1v1h-1zM20 4h3v1h-3zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM13 5h2v1h-2zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h7v1h-7zM10 7h1v1h-1zM12 7h1v1h-1zM15 7h2v1h-2zM0 8h1v1h-1zM2 8h1v1h-1zM6 8h2v1h-2zM10 8h2v1h-2zM15 8h1v1h-1zM19 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM0 9h1v1h-1zM3 9h1v1h-1zM5 9h1v1h-1zM11 9h1v1h-1zM15 9h5v1h-5zM21 9h1v1h-1zM23 9h2v1h-2zM2 10h2v1h-2zM5 10h2v1h-2zM10 10h3v1h-3zM14 10h2v1h-2zM17 10h3v1h-3zM21 10h2v1h-2zM24 10h1v1h-1zM2 11h3v1h-3zM8 11h1v1h-1zM10 11h3v1h-3zM14 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM0 12h3v1h-3zM6 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM16 12h1v1h-1zM18 12h2v1h-2zM24 12h1v1h-1zM3 13h1v1h-1zM7 13h3v1h-3zM13 13h1v1h-1zM15 13h2v1h-2zM18 13h2v1h-2zM23 13h2v1h-2zM0 14h8v1h-8zM9 14h3v1h-3zM15 14h2v1h-2zM18 14h1v1h-1zM21 14h2v1h-2zM24 14h1v1h-1zM2 15h1v1h-1zM4 15h2v1h-2zM7 15h2v1h-2zM14 15h2v1h-2zM17 15h1v1h-1zM19 15h3v1h-3zM0 16h2v1h-2zM4 16h9v1h-9zM15 16h6v1h-6zM23 16h1v1h-1zM8 17h3v1h-3zM12 17h2v1h-2zM15 17h2v1h-2zM20 17h1v1h-1zM24 17h1v1h-1zM0 18h7v1h-7zM8 18h1v1h-1zM10 18h1v1h-1zM12 18h2v1h-2zM16 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM11 19h2v1h-2zM14 19h3v1h-3zM20 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h3v1h-3zM6 20h1v1h-1zM9 20h1v1h-1zM13 20h8v1h-8zM24 20h1v1h-1zM0 21h1v1h-1zM2 21h3v1h-3zM6 21h1v1h-1zM9 21h2v1h-2zM13 21h1v1h-1zM17 21h1v1h-1zM20 21h1v1h-1zM22 21h2v1h-2zM0 22h1v1h-1zM2 22h3v1h-3zM6 22h1v1h-1zM8 22h1v1h-1zM10 22h2v1h-2zM16 22h1v1h-1zM19 22h3v1h-3zM23 22h2v1h-2zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM13 23h1v1h-1zM15 23h3v1h-3zM19 23h2v1h-2zM0 24h7v1h-7zM8 24h1v1h-1zM10 24h4v1h-4zM16 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1z';
+
+var S = { venueId:null, data:null, offset:0, key:'', phase:'', fail:0, timer:null, venues:null,
+          teamSig:null, seen:{}, boardSig:null, locking:false };
+
+function $(s){ return document.querySelector(s); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function U(){ return Math.min(window.innerHeight / 100, window.innerWidth * 0.5625 / 100); }
+function lsGet(){ try { return localStorage.getItem(STORE); } catch(e){ return null; } }
+function lsSet(v){ try { if (v) localStorage.setItem(STORE, v); else localStorage.removeItem(STORE); } catch(e){} }
+function plural(n, one, many){ return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+function fmtNum(x){ var n = Number(x); return isFinite(n) ? n.toLocaleString('en-US', {maximumFractionDigits:4, useGrouping: Math.abs(n) >= 10000}) : esc(x); }
+
+/* ---------- icons ---------- */
+function qrSVG(cls){
+  return '<svg class="' + cls + '" viewBox="-1 -1 ' + (QR_N + 2) + ' ' + (QR_N + 2) + '" shape-rendering="crispEdges" role="img" aria-label="QR code for brewtrivia.com">' +
+         '<rect x="-1" y="-1" width="' + (QR_N + 2) + '" height="' + (QR_N + 2) + '" fill="#F5EBD9"/>' +
+         '<path d="' + QR_PATH + '" fill="#0A1330"/></svg>';
+}
+var TROPHY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 6h3v1.5A3.5 3.5 0 0 1 16.5 11M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M12 14v4M8.5 20h7"/></svg>';
+var PHONE = '<svg class="ic" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="14" y="5" width="20" height="38" rx="4" stroke="#F5EBD9" stroke-width="2.4"/><path d="M21 10h6" stroke="#F5EBD9" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="37" r="2" fill="#E8A93C"/><path d="M19 22l4 4 7-8" stroke="#E8A93C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var LOCK = '<svg class="ic" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect x="11" y="21" width="26" height="20" rx="4" stroke="#F5EBD9" stroke-width="2.4"/><path d="M17 21v-5a7 7 0 0 1 14 0v5" stroke="#F5EBD9" stroke-width="2.4"/><circle cx="24" cy="31" r="2.6" fill="#C8492D"/></svg>';
+var CHECK = '<svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#3FA093"/><path d="M15 24.5l6 6 12-13" fill="none" stroke="#0A1330" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var GLASS_SHAPE = 'M9 5 H91 L83.5 141 Q83 146 78 146 H22 Q17 146 16.5 141 Z';
+function glassSVG(){
+  var bubbles = '', xs = [24, 38, 52, 63, 74, 45, 31, 68], i;
+  for (i = 0; i < xs.length; i++) {
+    bubbles += '<circle cx="' + xs[i] + '" cy="' + (128 - (i % 3) * 14) + '" r="' + (1.4 + (i % 3) * .5) + '" style="animation-delay:' + (i * .43).toFixed(2) + 's"/>';
+  }
+  return '<svg class="glass" viewBox="0 0 100 150" aria-hidden="true">' +
+    '<defs><clipPath id="gclip"><path d="' + GLASS_SHAPE + '"/></clipPath>' +
+    '<linearGradient id="beer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2B94E"/><stop offset="1" stop-color="#C4801B"/></linearGradient></defs>' +
+    '<g clip-path="url(#gclip)"><rect width="100" height="150" fill="rgba(245,235,217,.045)"/>' +
+    '<g id="liquid" style="transform:translateY(150px)"><rect x="0" y="9" width="100" height="160" fill="url(#beer)"/>' +
+    '<g class="bubbles">' + bubbles + '</g>' +
+    '<path d="M0 12 L0 6 Q5 0 10 6 Q15 0 20 6 Q25 0 30 6 Q35 0 40 6 Q45 0 50 6 Q55 0 60 6 Q65 0 70 6 Q75 0 80 6 Q85 0 90 6 Q95 0 100 6 L100 12 Z" fill="#F5EBD9"/></g></g>' +
+    '<path d="' + GLASS_SHAPE + '" fill="none" stroke="rgba(245,235,217,.6)" stroke-width="2.4" stroke-linejoin="round"/>' +
+    '<path d="M19 16 L25 126" stroke="rgba(245,235,217,.2)" stroke-width="3.2" stroke-linecap="round"/></svg>';
+}
+function setGlass(fraction){
+  var el = document.getElementById('liquid');
+  if (!el) return;
+  var f = Math.max(0, Math.min(1, fraction || 0));
+  el.style.transform = 'translateY(' + (150 - f * 138).toFixed(1) + 'px)';
+}
+
+/* ---------- network ---------- */
+function api(path, body){
+  return fetch(SB_URL + path, {
+    method: body ? 'POST' : 'GET',
+    headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+    cache: 'no-store'
+  }).then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+function loadVenues(){
+  if (S.venues) return Promise.resolve(S.venues);
+  return api('/rest/v1/venues?select=id,name,city,state,code,quiz_day,start_time&approved=eq.true&order=name.asc')
+    .then(function(v){ S.venues = v || []; return S.venues; });
+}
+
+function poll(){
+  clearTimeout(S.timer);
+  var id = S.venueId;
+  if (!id) return;
+  api('/rest/v1/rpc/tv_state', { venue: id }).then(function(d){
+    if (id !== S.venueId) return;
+    S.fail = 0; $('#conn').hidden = true;
+    if (d && d.server_now) S.offset = Date.parse(d.server_now) - Date.now();
+    apply(d);
+    S.timer = setTimeout(poll, d && d.status === 'finished' ? 6000 : 1500);
+  }).catch(function(){
+    if (id !== S.venueId) return;
+    S.fail++;
+    if (S.fail >= 2) $('#conn').hidden = false;
+    if (!S.data) showMessage('Can’t reach BrewTrivia', 'Check this computer’s internet connection. Retrying on its own…', false);
+    S.timer = setTimeout(poll, S.fail > 3 ? 4000 : 2000);
+  });
+}
+
+/* ---------- state → scene ---------- */
+function sceneOf(d){
+  if (d.status === 'finished') return 'finished';
+  if (d.status === 'standings') return 'standings';
+  if ((d.status === 'open' || d.status === 'closing') && d.question) return 'q';
+  return 'lobby';
+}
+function phaseOf(d){
+  if (d.locked) return 'reveal';
+  if (d.status === 'closing') return remaining(d) > 0 ? 'lastcall' : 'locking';
+  return 'open';
+}
+function remaining(d){
+  if (!d || !d.closes_at) return 0;
+  return (Date.parse(d.closes_at) - (Date.now() + S.offset)) / 1000;
+}
+
+function apply(d){
+  S.data = d;
+  if (!d) { showMissing(); return; }
+  document.body.classList.remove('setup-mode');
+  $('#venueName').textContent = d.venue.name;
+  $('#sep').hidden = false;
+  setTracker(d);
+  var scene = sceneOf(d), key;
+  if (scene === 'q') key = 'q|' + d.question.id;
+  else if (scene === 'standings') key = 'st|' + d.idx;
+  else if (scene === 'lobby') key = 'lobby|' + d.status;
+  else key = scene;
+  if (key !== S.key) {
+    S.key = key; S.phase = ''; S.teamSig = null; S.boardSig = null;
+    if (scene === 'lobby') render(lobbyHTML(d), footPlay(false));
+    else if (scene === 'q') render(questionHTML(d), footPlay(true));
+    else if (scene === 'standings') render(standingsHTML(d), footPlay(true));
+    else render(finishedHTML(d), footFinished());
+  }
+  if (scene === 'lobby') updateLobby(d);
+  else if (scene === 'q') updateQuestion(d);
+  else if (scene === 'standings') updateStandings(d);
+}
+
+function render(html, foot){
+  $('#scene').innerHTML = html;
+  $('#foot').innerHTML = foot || '';
+  fitAll();
+}
+
+function setTracker(d){
+  var tr = $('#tracker');
+  var live = d.status === 'open' || d.status === 'closing' || d.status === 'standings';
+  if (!live || !d.rounds) { tr.innerHTML = ''; return; }
+  var cur = d.is_final ? 'F' : d.round_no, h = '<span class="lbl">Round</span>', r, cls;
+  for (r = 1; r <= d.rounds; r++) {
+    cls = (cur === 'F' || (cur && r < cur)) ? 'done' : (r === cur ? 'now' : '');
+    h += '<span class="pill ' + cls + '">' + r + '</span>';
+  }
+  if (d.has_final) h += '<span class="pill ' + (cur === 'F' ? 'now' : '') + '">Final</span>';
+  tr.innerHTML = h;
+}
+
+function footPlay(withQr){
+  var v = S.data.venue;
+  var left = withQr
+    ? '<span>Play along at <b>brewtrivia.com</b> and choose <b>' + esc(v.name) + '</b></span>'
+    : '<span>No app to download. It runs in your phone’s browser.</span>';
+  return left + (withQr ? '<span class="miniqr"><span>Late? Scan to join</span>' + qrSVG('qr') + '</span>' : '');
+}
+function footFinished(){
+  return '<span>Tonight’s points count toward the <b>BrewTrivia national ranking</b>.</span><span class="miniqr"><span>brewtrivia.com</span>' + qrSVG('qr') + '</span>';
+}
+
+/* ---------- lobby ---------- */
+function lobbyHTML(d){
+  var v = d.venue, started = d.status === 'lobby';
+  return '<section class="lobby enter"><div class="left">' +
+    '<div class="eyebrow">Tonight at ' + esc(v.name) + '</div>' +
+    '<h1 class="headline">' + (started ? 'Phones out.<br><em>We start in a moment.</em>' : 'Grab your phone.<br><em>Trivia starts soon.</em>') + '</h1>' +
+    '<ol class="steps">' +
+      '<li><span class="n">1</span><span>Scan the code or go to <strong>brewtrivia.com</strong></span></li>' +
+      '<li><span class="n">2</span><span>Choose <strong>' + esc(v.name) + '</strong></span></li>' +
+      '<li><span class="n">3</span><span>Name your team and join</span></li>' +
+    '</ol>' +
+    (v.prize ? '<div class="prize">' + TROPHY + '<span>Tonight’s prize: ' + esc(v.prize) + '</span></div>' : '') +
+    '</div>' +
+    '<div class="right"><div class="qrcard">' + qrSVG('qr') + '<div class="url">brewtrivia.com</div>' +
+      (v.code ? '<div class="code">Venue code ' + esc(v.code) + '</div>' : '') + '</div></div>' +
+    '<div class="wall"><div class="count" id="wallCount"></div><div class="chips" id="chips"></div></div></section>';
+}
+function updateLobby(d){
+  var teams = d.teams || [];
+  var sig = teams.map(function(t){ return t.name; }).join('\u0001');
+  if (sig === S.teamSig) return;
+  var first = S.teamSig === null;
+  S.teamSig = sig;
+  $('#wallCount').innerHTML = teams.length
+    ? '<b>' + teams.length + '</b> ' + (teams.length === 1 ? 'team' : 'teams') + ' · <b>' + d.player_count + '</b> ' + (d.player_count === 1 ? 'player' : 'players') + ' in'
+    : 'Waiting for the first team…';
+  var shown = teams.slice(-28), h = '', i, t, isNew;
+  if (teams.length > shown.length) h += '<span class="chip">+' + (teams.length - shown.length) + ' more</span>';
+  for (i = 0; i < shown.length; i++) {
+    t = shown[i];
+    isNew = !first && !S.seen[t.name];
+    h += '<span class="chip' + (isNew ? ' new' : '') + '">' + esc(t.name) + '</span>';
+  }
+  for (i = 0; i < teams.length; i++) S.seen[teams[i].name] = 1;
+  $('#chips').innerHTML = h;
+}
+
+/* ---------- question ---------- */
+function questionHTML(d){
+  var q = d.question, t = q.type, head, body = '', ans, cls, i, keys = 'ABCDEFGH';
+  if (d.is_final) {
+    head = '<span class="eyebrow">Final question</span><span class="tag gold">Wager 0–' + esc(q.final_max) + (t !== 'num' ? ' · a wrong answer loses it' : '') + '</span>';
+  } else {
+    head = '<span class="eyebrow">Round ' + d.round_no + ' · Question ' + d.q_in_round + ' of ' + d.round_size + '</span><span class="tag">Wager 1–5</span>';
+  }
+  if (q.category) head += '<span class="tag">' + esc(q.category) + '</span>';
+  if (t === 'multi') head += '<span class="tag gold">Pick all that apply</span>';
+
+  if (t === 'num') {
+    body = '<div class="numpanel" id="numpanel"><div class="hash">#</div><div><div class="say">Type your number on your phone</div>' +
+           '<div class="sub">Exact answers score</div></div></div>';
+  } else {
+    ans = q.answers || [];
+    cls = t === 'tf' ? 'tf' : (ans.length === 3 ? 'c3' : '');
+    body = '<div class="answers ' + cls + '">';
+    for (i = 0; i < ans.length; i++) {
+      body += '<div class="tile" data-i="' + i + '" style="animation-delay:' + (0.18 + i * 0.08).toFixed(2) + 's"><div class="bar"></div>' +
+              (t === 'tf' ? '' : '<span class="key">' + keys.charAt(i) + '</span>') +
+              '<span class="txt">' + esc(ans[i]) + '</span><span class="cnt"></span></div>';
+    }
+    body += '</div>';
+  }
+  return '<section class="q enter" id="q"><div class="main"><div class="qhead">' + head + '</div>' +
+    '<div class="qwrap" id="qwrap"><h2 class="qtext" id="qtext">' + esc(q.text) + '</h2></div>' + body + '</div>' +
+    '<aside class="rail"><div class="status" id="qstatus"></div>' + glassSVG() +
+    '<div class="meter"><div class="val" id="meterVal"></div><div class="lab" id="meterLab"></div></div></aside></section>';
+}
+function updateQuestion(d){
+  var phase = phaseOf(d), box = $('#q');
+  if (!box) return;
+  if (phase !== S.phase) {
+    S.phase = phase;
+    box.classList.toggle('reveal', phase === 'reveal');
+    var st = $('#qstatus');
+    if (phase === 'open') {
+      st.innerHTML = PHONE + '<div class="st-main">Answer on<br>your phone</div>';
+    } else if (phase === 'lastcall') {
+      st.innerHTML = '<div class="ring"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="44"/>' +
+        '<circle class="fg" id="ringFg" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="0"/></svg>' +
+        '<div class="num" id="cdNum"></div></div><div class="lastcall pulse">Last call</div>';
+      tickCountdown();
+    } else if (phase === 'locking') {
+      st.innerHTML = LOCK + '<div class="st-main">Answers locked</div>';
+    } else {
+      st.innerHTML = CHECK + '<div class="st-main">The answer</div>';
+    }
+  }
+  if (phase === 'reveal') {
+    showReveal(d);
+    var r = d.reveal || {}, got = r.correct_count || 0;
+    $('#meterVal').innerHTML = d.answered ? got + '<small>/' + d.answered + '</small>' : '0';
+    $('#meterLab').textContent = d.answered ? (d.question.type === 'multi' ? 'teams scored' : 'teams got it') : 'no answers this time';
+    setGlass(d.answered ? got / d.answered : 0);
+  } else {
+    $('#meterVal').innerHTML = d.answered + '<small>/' + d.team_count + '</small>';
+    $('#meterLab').textContent = d.team_count === 1 ? 'team answered' : 'teams answered';
+    setGlass(d.team_count ? d.answered / d.team_count : 0);
+  }
+}
+function showReveal(d){
+  var r = d.reveal, q = d.question;
+  if (!r) return;
+  if (q.type === 'num') {
+    var tol = Number(r.num_tolerance) || 0;
+    $('#numpanel').innerHTML = '<div class="ans">' + fmtNum(r.correct_num) + '</div>' +
+      (tol > 0 ? '<div><div class="say">Anything within ±' + fmtNum(tol) + ' counts</div></div>' : '');
+    return;
+  }
+  var ok = q.type === 'multi' ? (r.correct_set || []) : [r.correct];
+  var dist = r.dist || [], total = Math.max(1, d.answered);
+  Array.prototype.forEach.call(document.querySelectorAll('#q .tile'), function(el){
+    var i = Number(el.getAttribute('data-i')), c = dist[i] || 0;
+    el.classList.toggle('ok', ok.indexOf(i) !== -1);
+    el.querySelector('.cnt').textContent = plural(c, 'team');
+    el.querySelector('.bar').style.width = (c / total * 100).toFixed(1) + '%';
+  });
+}
+function tickCountdown(){
+  var d = S.data;
+  if (!d || S.phase !== 'lastcall') return;
+  var left = remaining(d), num = $('#cdNum'), fg = $('#ringFg');
+  if (num) num.textContent = Math.max(0, Math.ceil(left));
+  if (fg) fg.setAttribute('stroke-dashoffset', (276.46 * (1 - Math.max(0, Math.min(1, left / LAST_CALL_SECONDS)))).toFixed(1));
+  if (left <= 0 && !S.locking) {
+    S.locking = true;
+    updateQuestion(d);
+    setTimeout(function(){ S.locking = false; poll(); }, 400);
+  }
+}
+setInterval(tickCountdown, 200);
+
+/* ---------- standings ---------- */
+function ranked(teams){
+  var out = [], i, rank = 0, prev = null;
+  for (i = 0; i < teams.length; i++) {
+    if (prev === null || teams[i].score !== prev) rank = i + 1;
+    prev = teams[i].score;
+    out.push({ rank: rank, t: teams[i] });
+  }
+  return out;
+}
+function standingsTitle(d){
+  if (d.idx == null) return 'Standings';
+  if (d.is_final) return 'After the final question';
+  if (d.q_in_round === d.round_size) return 'After round ' + d.round_no;
+  return 'Round ' + d.round_no + ' · after question ' + d.q_in_round;
+}
+function rowHTML(x, top, i){
+  var w = top > 0 ? Math.max(0, x.t.score) / top * 100 : 0;
+  return '<div class="row' + (x.rank === 1 && x.t.score > 0 ? ' lead' : '') + '" style="animation-delay:' + (0.1 + i * 0.06).toFixed(2) + 's">' +
+    '<div class="bar" data-w="' + w.toFixed(1) + '"></div><span class="rk">' + x.rank + '</span>' +
+    '<span class="nm">' + esc(x.t.name) + '</span><span class="pl">' + plural(x.t.players, 'player') + '</span>' +
+    '<span class="sc">' + x.t.score + '</span></div>';
+}
+function boardHTML(teams){
+  if (!teams.length) return '<div class="hint">No teams yet.</div>';
+  var list = ranked(teams), max = 14, shown = list.slice(0, max);
+  var cols = shown.length > 7 ? 2 : 1;
+  var rows = cols === 1 ? Math.max(shown.length, 5) : Math.max(Math.ceil(shown.length / 2), 5);
+  var top = Math.max(0, teams[0].score), h = '', i;
+  for (i = 0; i < shown.length; i++) h += rowHTML(shown[i], top, i);
+  return '<div class="board" style="--cols:' + cols + ';--rows:' + rows + '">' + h + '</div>' +
+    (list.length > max ? '<div class="more">+ ' + plural(list.length - max, 'more team') + '</div>' : '');
+}
+function standingsHTML(d){
+  return '<section class="standings enter"><div class="eyebrow">Standings</div><h1 class="st-title">' + esc(standingsTitle(d)) + '</h1>' +
+    '<div id="boardWrap" style="display:flex;flex-direction:column;flex:1;min-height:0">' + boardHTML(d.teams || []) + '</div></section>';
+}
+function growBars(){
+  setTimeout(function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.row .bar[data-w]'), function(b){ b.style.width = b.getAttribute('data-w') + '%'; });
+  }, 30);
+}
+function updateStandings(d){
+  var sig = JSON.stringify(d.teams || []);
+  if (sig === S.boardSig) return;
+  var first = S.boardSig === null;
+  S.boardSig = sig;
+  if (!first) $('#boardWrap').innerHTML = boardHTML(d.teams || []);
+  growBars();
+}
+
+/* ---------- finished ---------- */
+function finishedHTML(d){
+  var v = d.venue, teams = d.teams || [];
+  var next = v.quiz_day ? 'Trivia’s back <b>' + esc(v.quiz_day) + (v.start_time ? ' at ' + esc(v.start_time) : '') + '</b>.' : '';
+  if (!teams.length) {
+    return '<section class="msg enter"><div class="eyebrow">That’s a wrap</div><h1>Thanks for coming out.</h1>' + (next ? '<p>' + next + '</p>' : '') + '</section>';
+  }
+  var top = teams[0].score, winners = teams.filter(function(t){ return t.score === top; }), tie = winners.length > 1;
+  var players = winners.reduce(function(a, t){ return a + (t.players || 0); }, 0);
+  var rest = ranked(teams).filter(function(x){ return x.t.score !== top; }).slice(0, 7), h = '', i;
+  for (i = 0; i < rest.length; i++) h += rowHTML(rest[i], top, i + 2);
+  return '<section class="fin enter"><div class="champ">' +
+      '<div class="eyebrow">' + (tie ? 'Tied for first' : 'Tonight’s winner') + '</div>' +
+      '<h1 class="name" id="champName">' + winners.map(function(t){ return esc(t.name); }).join(' <em>&amp;</em> ') + '</h1>' +
+      '<div class="meta">' + plural(top, 'point') + ' <span>· ' + plural(players, 'player') + '</span></div>' +
+      (v.prize ? '<div class="prize won">' + TROPHY + '<span>' + (tie ? 'Sharing ' : 'Wins ') + esc(v.prize) + '</span></div>' : '') +
+      '<p class="thanks">Thanks for playing! ' + next + '</p>' +
+    '</div><div class="rest">' + (rest.length ? '<div class="hd">Final standings</div>' + h : '') + '</div></section>';
+}
+
+/* ---------- setup & messages ---------- */
+function showSetup(){
+  S.venueId = null; S.data = null; S.key = 'setup'; clearTimeout(S.timer);
+  document.body.classList.add('setup-mode');
+  $('#venueName').textContent = ''; $('#sep').hidden = true; $('#tracker').innerHTML = ''; $('#foot').innerHTML = ''; $('#conn').hidden = true;
+  $('#scene').innerHTML = '<section class="setup enter"><div class="eyebrow">TV screen</div><h1>Show trivia on the TV</h1>' +
+    '<p>Choose your venue. This screen follows the game by itself: guests see each question, never the host controls. No sign-in.</p>' +
+    '<input id="search" class="search" placeholder="Search venues" autocomplete="off" spellcheck="false">' +
+    '<div class="vlist" id="vlist"><div class="hint">Loading venues…</div></div>' +
+    '<p class="tip">Then press <kbd>F</kbd> for full screen. Move the mouse anytime to change venue.</p></section>';
+  var input = $('#search');
+  input.addEventListener('input', function(){ listVenues(input.value); });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') { var b = document.querySelector('.vbtn'); if (b) b.click(); }
+  });
+  setTimeout(function(){ input.focus(); }, 50);
+  loadVenues().then(function(){ listVenues(input.value); }).catch(function(){
+    $('#vlist').innerHTML = '<div class="hint">Can’t reach BrewTrivia. Check the internet connection and reload.</div>';
+  });
+}
+function listVenues(q){
+  var box = $('#vlist');
+  if (!box || !S.venues) return;
+  q = (q || '').trim().toLowerCase();
+  var list = S.venues.filter(function(v){
+    return !q || (v.name + ' ' + v.city + ' ' + v.state + ' ' + v.code).toLowerCase().indexOf(q) !== -1;
+  });
+  if (!list.length) {
+    box.innerHTML = '<div class="hint">' + (S.venues.length ? 'No venue matches “' + esc(q) + '”.' : 'No venues are live on BrewTrivia yet.') + '</div>';
+    return;
+  }
+  box.innerHTML = list.map(function(v){
+    var where = [v.city, v.state].filter(Boolean).join(', ');
+    var when = v.quiz_day ? v.quiz_day.slice(0, 3) + (v.start_time ? ' ' + v.start_time : '') : '';
+    return '<button type="button" class="vbtn" data-id="' + esc(v.id) + '"><span>' + esc(v.name) + '</span><small>' +
+      esc([where, when].filter(Boolean).join(' · ')) + '</small></button>';
+  }).join('');
+  Array.prototype.forEach.call(box.querySelectorAll('.vbtn'), function(b){
+    b.addEventListener('click', function(){ choose(b.getAttribute('data-id')); wake(); });
+  });
+}
+function showMessage(title, text, withButton){
+  S.key = 'msg';
+  $('#tracker').innerHTML = ''; $('#foot').innerHTML = '';
+  $('#scene').innerHTML = '<section class="msg enter">' + (withButton === false && !title ? '<div class="spin"></div>' : '') +
+    (title ? '<h1>' + esc(title) + '</h1>' : '') + (text ? '<p>' + esc(text) + '</p>' : '') +
+    (withButton ? '<button type="button" class="btn" id="msgBtn">Choose a venue</button>' : '') + '</section>';
+  var b = $('#msgBtn'); if (b) b.addEventListener('click', showSetup);
+}
+function showMissing(){
+  $('#venueName').textContent = ''; $('#sep').hidden = true;
+  showMessage('This venue isn’t live on BrewTrivia', 'It may still be waiting for approval, or it was removed.', true);
+}
+function choose(id){
+  S.venueId = id; S.data = null; S.key = ''; S.seen = {}; lsSet(id);
+  try { var url = new URL(window.location.href); url.searchParams.set('venue', id); url.hash = ''; history.replaceState(null, '', url.toString()); } catch(e){}
+  document.body.classList.remove('setup-mode');
+  showMessage('', '', false);
+  poll();
+}
+
+/* ---------- fitting long text ---------- */
+function fit(el, maxU, minU, limit){
+  if (!el) return;
+  var inner = el.firstElementChild;
+  if (!inner || inner.className !== 'fi') {
+    inner = document.createElement('span'); inner.className = 'fi';
+    while (el.firstChild) inner.appendChild(el.firstChild);
+    el.appendChild(inner);
+  }
+  var u = U(), s = maxU, guard = 60;
+  function over(){
+    var lh = parseFloat(getComputedStyle(el).lineHeight) || s * u * 1.1;
+    var max = typeof limit === 'function' ? limit() : parseFloat(getComputedStyle(el).maxHeight);
+    var tall = isFinite(max) && max > 0 && inner.getClientRects().length * lh > max + 0.5;
+    return tall || inner.getBoundingClientRect().width > el.clientWidth + 1;
+  }
+  el.style.fontSize = (s * u) + 'px';
+  while (guard-- > 0 && s > minU && over()) { s *= 0.95; el.style.fontSize = (s * u) + 'px'; }
+}
+function fitAll(){
+  var wrap = $('#qwrap');
+  if (wrap) fit($('#qtext'), 9.4, 4.4, function(){ return wrap.clientHeight; });
+  var tf = document.querySelector('.answers.tf');
+  Array.prototype.forEach.call(document.querySelectorAll('.tile .txt'), function(el){ fit(el, tf ? 8 : 4.8, 2.4); });
+  fit($('#champName'), 14, 6);
+  growBars();
+}
+window.addEventListener('resize', fitAll);
+if (document.fonts) {
+  if (document.fonts.ready) document.fonts.ready.then(fitAll);
+  if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitAll);
+}
+
+/* ---------- TV niceties: full screen, keep awake, hide cursor ---------- */
+var wakeLock = null;
+function wake(){
+  try {
+    if ('wakeLock' in navigator && !document.hidden && (!wakeLock || wakeLock.released)) {
+      navigator.wakeLock.request('screen').then(function(l){ wakeLock = l; }).catch(function(){});
+    }
+  } catch(e){}
+}
+function toggleFull(){
+  try {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
+  } catch(e){}
+  wake();
+}
+var idleT = null;
+function active(){
+  document.body.classList.add('active'); document.body.classList.remove('idle');
+  clearTimeout(idleT);
+  idleT = setTimeout(function(){ document.body.classList.remove('active'); document.body.classList.add('idle'); }, 2500);
+}
+['mousemove', 'mousedown', 'touchstart'].forEach(function(ev){ window.addEventListener(ev, active, { passive: true }); });
+document.addEventListener('keydown', function(e){
+  if (e.target && e.target.tagName === 'INPUT') return;
+  if (e.key === 'f' || e.key === 'F') toggleFull();
+  if (e.key === 'c' || e.key === 'C') showSetup();
+});
+$('#btnFull').addEventListener('click', toggleFull);
+$('#btnVenue').addEventListener('click', showSetup);
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) { wake(); if (S.venueId) poll(); } });
+
+/* ---------- start ---------- */
+function boot(){
+  var p = new URLSearchParams(window.location.search);
+  var id = p.get('venue') || lsGet();
+  var code = p.get('code');
+  var uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (code && !p.get('venue')) {
+    loadVenues().then(function(vs){
+      var m = vs.filter(function(v){ return (v.code || '').toUpperCase() === code.toUpperCase(); })[0];
+      if (m) choose(m.id); else showSetup();
+    }).catch(showSetup);
+    return;
+  }
+  if (id && uuid.test(id)) choose(id); else showSetup();
+  wake();
+}
+boot();
+})();
+</script>
+</body>
+</html>
