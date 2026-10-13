@@ -2,9 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BrewTrivia TV</title>
 <meta name="theme-color" content="#0A1330">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BrewTrivia TV">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230A1330'/%3E%3Cpath d='M150 172h212v40h-86v168h-40V212h-86z' fill='%23E8A93C'/%3E%3Ccircle cx='256' cy='418' r='14' fill='%233FA093'/%3E%3Cpath d='M120 130c40-22 232-22 272 0' stroke='%233FA093' stroke-width='14' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,13 +25,20 @@
   --u:min(1vh, 0.5625vw);
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
 html,body{height:100%;background:#050A1C;color:var(--cream);font-family:var(--body);overflow:hidden;-webkit-font-smoothing:antialiased}
-body{display:flex;align-items:center;justify-content:center}
+body{display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 body.idle:not(.setup-mode), body.idle:not(.setup-mode) *{cursor:none !important}
 
-#stage{position:relative;width:calc(var(--u)*177.78);height:calc(var(--u)*100);overflow:hidden;display:flex;flex-direction:column;
+/* The stage fills the screen; the script sizes it and sets --u from the screen's shape (TV, iPad, phone). */
+#stage{position:relative;width:100vw;height:100vh;overflow:hidden;display:flex;flex-direction:column;
   padding:calc(var(--u)*4.2) calc(var(--u)*5.4) calc(var(--u)*3.8);
   background:radial-gradient(110% 85% at 12% 0%, #15275E 0%, var(--night) 58%), var(--night)}
+@supports (padding:max(0px)){
+  #stage{padding-top:max(calc(var(--u)*4.2), env(safe-area-inset-top));padding-right:max(calc(var(--u)*5.4), env(safe-area-inset-right));
+    padding-bottom:max(calc(var(--u)*3.8), env(safe-area-inset-bottom));padding-left:max(calc(var(--u)*5.4), env(safe-area-inset-left))}
+}
 
 /* ---------- header ---------- */
 .top{display:flex;align-items:center;justify-content:space-between;height:calc(var(--u)*5);flex:0 0 auto}
@@ -204,6 +217,99 @@ kbd{display:inline-block;font:700 .85em var(--body);padding:.1em .5em;border-rad
 body.active .controls{opacity:1;pointer-events:auto}
 .controls button{font:600 1.6vh var(--body);background:rgba(22,38,90,.94);color:var(--cream);border:1px solid var(--line);border-radius:99px;padding:1vh 1.8vh;cursor:pointer}
 .controls button:hover{border-color:var(--gold)}
+.controls button[hidden]{display:none}
+
+/* ---------- 4:3 and 3:2 screens: iPad landscape, iPad mirrored to a TV ---------- */
+.m-mid .lobby{grid-template-columns:1fr calc(var(--u)*40);column-gap:calc(var(--u)*5)}
+.m-mid .headline{font-size:calc(var(--u)*8.8)}
+.m-mid .steps{margin-top:calc(var(--u)*3.4)}
+.m-mid .steps li{font-size:calc(var(--u)*2.8)}
+.m-mid .qrcard{padding:calc(var(--u)*3.4) calc(var(--u)*3.4) calc(var(--u)*3)}
+.m-mid .qrcard .qr{width:calc(var(--u)*30);height:calc(var(--u)*30)}
+.m-mid .qrcard .url{font-size:calc(var(--u)*4.4)}
+.m-mid .q{grid-template-columns:1fr calc(var(--u)*23);column-gap:calc(var(--u)*4)}
+.m-mid .glass{width:calc(var(--u)*16);height:calc(var(--u)*24)}
+.m-mid .ring{width:calc(var(--u)*14);height:calc(var(--u)*14)}
+.m-mid .ring .num{font-size:calc(var(--u)*7.4)}
+.m-mid .row .pl{display:none}
+.m-mid .fin{grid-template-columns:1fr 1fr;column-gap:calc(var(--u)*5)}
+.m-mid .foot{font-size:calc(var(--u)*2)}
+.m-mid .search,.m-mid .vlist{width:min(calc(var(--u)*84), 100%)}
+
+/* ---------- portrait: iPad held upright, phones ---------- */
+.m-tall #stage{padding:calc(var(--u)*3.8) calc(var(--u)*4.4) calc(var(--u)*3.4)}
+@supports (padding:max(0px)){
+  .m-tall #stage{padding-top:max(calc(var(--u)*3.8), env(safe-area-inset-top));padding-right:max(calc(var(--u)*4.4), env(safe-area-inset-right));
+    padding-bottom:max(calc(var(--u)*3.4), env(safe-area-inset-bottom));padding-left:max(calc(var(--u)*4.4), env(safe-area-inset-left))}
+}
+.m-tall .top{height:auto;flex-wrap:wrap;row-gap:calc(var(--u)*1.8)}
+.m-tall .tracker{order:3;width:100%}
+.m-tall .tracker:empty{display:none}
+.m-tall #scene{margin-top:calc(var(--u)*2.8)}
+.m-tall .lobby{display:flex;flex-direction:column}
+.m-tall .headline{font-size:calc(var(--u)*7.6)}
+.m-tall .steps{margin-top:calc(var(--u)*3)}
+.m-tall .steps li{font-size:calc(var(--u)*2.9)}
+.m-tall .steps .n{width:calc(var(--u)*4.8);height:calc(var(--u)*4.8);font-size:calc(var(--u)*3)}
+.m-tall .prize{margin-top:calc(var(--u)*2.6)}
+.m-tall .lobby .right{flex:1 1 auto;min-height:0;padding:calc(var(--u)*2.6) 0}
+.m-tall .qrcard{padding:calc(var(--u)*3) calc(var(--u)*3) calc(var(--u)*2.6)}
+.m-tall .qrcard .qr{width:min(calc(var(--u)*30), 26vh);height:min(calc(var(--u)*30), 26vh)}
+.m-tall .qrcard .url{font-size:calc(var(--u)*4.4)}
+.m-tall .lobby .wall{padding-top:0}
+.m-tall .chips{max-height:calc(var(--u)*10.8)}
+.qrcard .qhint{display:none}
+.m-tall .lobby.compact .steps{display:none}
+.m-tall .lobby.compact .qrcard .qhint{display:block;margin-top:calc(var(--u)*1.2);font-size:calc(var(--u)*2.4);font-weight:500;color:var(--ink);text-align:center}
+.m-tall .lobby.compact .qrcard .qhint b{font-weight:700;color:var(--night)}
+.m-tall .q{display:flex;flex-direction:column}
+.m-tall .q .main{flex:1 1 auto}
+.m-tall .qwrap{margin:calc(var(--u)*2) 0}
+.m-tall .answers{gap:calc(var(--u)*1.6)}
+.m-tall .answers.c3{grid-template-columns:1fr}
+.m-tall .tile{min-height:calc(var(--u)*10.5);padding:calc(var(--u)*1.6) calc(var(--u)*2)}
+.m-tall .tile .key{width:calc(var(--u)*5.4);height:calc(var(--u)*5.4);font-size:calc(var(--u)*2.9)}
+.m-tall .answers.tf .tile{min-height:calc(var(--u)*13)}
+.m-tall .numpanel{padding:calc(var(--u)*2.6) calc(var(--u)*3);gap:calc(var(--u)*2.6)}
+.m-tall .numpanel .hash,.m-tall .numpanel .ans{font-size:calc(var(--u)*10)}
+.m-tall .numpanel .say{font-size:calc(var(--u)*3.2)}
+.m-tall .rail{flex:0 0 auto;flex-direction:row;align-items:center;gap:calc(var(--u)*3);margin-top:calc(var(--u)*2.8);
+  padding-top:calc(var(--u)*2.6);border-top:2px solid var(--line)}
+.m-tall .status{flex:1 1 auto;flex-direction:row;justify-content:flex-start;width:auto;min-height:calc(var(--u)*13);gap:calc(var(--u)*2.2);text-align:left}
+.m-tall .status .ic{width:calc(var(--u)*7.4);height:calc(var(--u)*7.4)}
+.m-tall .status .st-main{font-size:calc(var(--u)*3)}
+.m-tall .ring{flex:0 0 auto;width:calc(var(--u)*13);height:calc(var(--u)*13)}
+.m-tall .ring .num{font-size:calc(var(--u)*7)}
+.m-tall .glass{flex:0 0 auto;width:calc(var(--u)*9.4);height:calc(var(--u)*14.1)}
+.m-tall .meter{flex:0 0 auto;margin-top:0;text-align:left;min-width:calc(var(--u)*15)}
+.m-tall .meter .val{font-size:calc(var(--u)*5)}
+.m-tall .st-title{font-size:calc(var(--u)*6.6)}
+.m-tall .board{margin-top:calc(var(--u)*2.8);grid-auto-flow:row;grid-template-columns:1fr;grid-template-rows:none;
+  grid-auto-rows:minmax(calc(var(--u)*5.2), calc(var(--u)*7.4));align-content:start;row-gap:calc(var(--u)*1.2)}
+.m-tall .row{padding:0 calc(var(--u)*2.2)}
+.m-tall .row .pl{display:none}
+.m-tall .fin{display:flex;flex-direction:column;justify-content:center;gap:calc(var(--u)*4)}
+.m-tall .champ{flex:0 0 auto}
+.m-tall .champ .name{font-size:calc(var(--u)*11);max-height:calc(var(--u)*24)}
+.m-tall .champ .thanks{margin-top:calc(var(--u)*3)}
+.m-tall .rest{flex:0 1 auto;min-height:0;overflow:hidden;justify-content:flex-start}
+.m-tall .rest .row{min-height:calc(var(--u)*6.6)}
+.m-tall .setup h1,.m-tall .msg h1{font-size:calc(var(--u)*6.6)}
+.m-tall .setup p,.m-tall .msg p{font-size:calc(var(--u)*2.7);max-width:100%}
+.m-tall .search,.m-tall .vlist{width:100%}
+.m-tall .vlist{max-height:calc(var(--u)*46)}
+.m-tall .vbtn{flex-direction:column;align-items:flex-start;gap:calc(var(--u)*.6)}
+.m-tall .foot{font-size:calc(var(--u)*2.3);gap:calc(var(--u)*2.4);margin-top:calc(var(--u)*2.2)}
+.m-tall .foot > span:first-child{flex:1 1 auto;min-width:0}
+.m-tall .miniqr > span{display:none}
+.m-tall .miniqr .qr{width:calc(var(--u)*9.4);height:calc(var(--u)*9.4)}
+
+/* ---------- touch screens (iPad, phones): finger-sized controls, no keyboard hints ---------- */
+.touch .controls{right:max(16px, env(safe-area-inset-right));bottom:max(16px, env(safe-area-inset-bottom));gap:10px}
+.touch .controls button{font-size:16px;min-height:44px;padding:0 20px}
+.touch kbd{display:none}
+.touch .search{font-size:max(16px, calc(var(--u)*3))}
+.search{-webkit-user-select:text;user-select:text}
 
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
@@ -248,12 +354,43 @@ var QR_N = 25;
 var QR_PATH = 'M0 0h7v1h-7zM8 0h3v1h-3zM12 0h3v1h-3zM18 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h2v1h-2zM12 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM8 2h1v1h-1zM13 2h1v1h-1zM15 2h2v1h-2zM18 2h1v1h-1zM20 2h3v1h-3zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM10 3h1v1h-1zM13 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM20 3h3v1h-3zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h3v1h-3zM14 4h1v1h-1zM18 4h1v1h-1zM20 4h3v1h-3zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM13 5h2v1h-2zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h7v1h-7zM10 7h1v1h-1zM12 7h1v1h-1zM15 7h2v1h-2zM0 8h1v1h-1zM2 8h1v1h-1zM6 8h2v1h-2zM10 8h2v1h-2zM15 8h1v1h-1zM19 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM0 9h1v1h-1zM3 9h1v1h-1zM5 9h1v1h-1zM11 9h1v1h-1zM15 9h5v1h-5zM21 9h1v1h-1zM23 9h2v1h-2zM2 10h2v1h-2zM5 10h2v1h-2zM10 10h3v1h-3zM14 10h2v1h-2zM17 10h3v1h-3zM21 10h2v1h-2zM24 10h1v1h-1zM2 11h3v1h-3zM8 11h1v1h-1zM10 11h3v1h-3zM14 11h1v1h-1zM18 11h1v1h-1zM21 11h1v1h-1zM0 12h3v1h-3zM6 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM16 12h1v1h-1zM18 12h2v1h-2zM24 12h1v1h-1zM3 13h1v1h-1zM7 13h3v1h-3zM13 13h1v1h-1zM15 13h2v1h-2zM18 13h2v1h-2zM23 13h2v1h-2zM0 14h8v1h-8zM9 14h3v1h-3zM15 14h2v1h-2zM18 14h1v1h-1zM21 14h2v1h-2zM24 14h1v1h-1zM2 15h1v1h-1zM4 15h2v1h-2zM7 15h2v1h-2zM14 15h2v1h-2zM17 15h1v1h-1zM19 15h3v1h-3zM0 16h2v1h-2zM4 16h9v1h-9zM15 16h6v1h-6zM23 16h1v1h-1zM8 17h3v1h-3zM12 17h2v1h-2zM15 17h2v1h-2zM20 17h1v1h-1zM24 17h1v1h-1zM0 18h7v1h-7zM8 18h1v1h-1zM10 18h1v1h-1zM12 18h2v1h-2zM16 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM11 19h2v1h-2zM14 19h3v1h-3zM20 19h1v1h-1zM24 19h1v1h-1zM0 20h1v1h-1zM2 20h3v1h-3zM6 20h1v1h-1zM9 20h1v1h-1zM13 20h8v1h-8zM24 20h1v1h-1zM0 21h1v1h-1zM2 21h3v1h-3zM6 21h1v1h-1zM9 21h2v1h-2zM13 21h1v1h-1zM17 21h1v1h-1zM20 21h1v1h-1zM22 21h2v1h-2zM0 22h1v1h-1zM2 22h3v1h-3zM6 22h1v1h-1zM8 22h1v1h-1zM10 22h2v1h-2zM16 22h1v1h-1zM19 22h3v1h-3zM23 22h2v1h-2zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM13 23h1v1h-1zM15 23h3v1h-3zM19 23h2v1h-2zM0 24h7v1h-7zM8 24h1v1h-1zM10 24h4v1h-4zM16 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1z';
 
 var S = { venueId:null, data:null, offset:0, key:'', phase:'', fail:0, timer:null, venues:null,
-          teamSig:null, seen:{}, boardSig:null, locking:false };
+          teamSig:null, seen:{}, boardSig:null, locking:false, mode:null, u:0 };
+
+/* ---------- which device is this? ---------- */
+var UA = navigator.userAgent || '';
+var IS_IOS = /iPad|iPhone|iPod/.test(UA) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(UA));
+var STANDALONE = navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+var TOUCH = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || navigator.maxTouchPoints > 0;
+if (TOUCH) document.documentElement.classList.add('touch');
 
 function $(s){ return document.querySelector(s); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-function U(){ return Math.min(window.innerHeight / 100, window.innerWidth * 0.5625 / 100); }
+function U(){ return S.u || Math.min(window.innerHeight / 100, window.innerWidth * 0.5625 / 100); }
+
+/* The layout follows the screen's shape:
+   wide = TVs and laptops (16:9, 16:10) · mid = iPad landscape and other 4:3 / 3:2 screens · tall = iPad upright, phones. */
+function layout(){
+  var w = window.innerWidth || document.documentElement.clientWidth;
+  var h = window.innerHeight || document.documentElement.clientHeight;
+  if (!w || !h) return;
+  var a = w / h, mode, u;
+  if (a >= 1.6) { mode = 'wide'; u = Math.min(h / 100, w / 177.78); }
+  else if (a >= 1.15) { mode = 'mid'; u = Math.min(h / 100, w / 128); }
+  else { mode = 'tall'; u = Math.min(w / 82, h / 118); }
+  S.u = u;
+  document.documentElement.style.setProperty('--u', u.toFixed(3) + 'px');
+  var st = document.getElementById('stage');
+  st.style.width = w + 'px'; st.style.height = h + 'px';
+  if (mode !== S.mode) {
+    var body = document.body, had = S.mode;
+    body.classList.remove('m-wide', 'm-mid', 'm-tall');
+    body.classList.add('m-' + mode);
+    S.mode = mode;
+    if (had && S.data && S.key && S.key !== 'setup' && S.key !== 'msg') { S.key = ''; apply(S.data); return; }
+  }
+  fitAll();
+}
 function lsGet(){ try { return localStorage.getItem(STORE); } catch(e){ return null; } }
 function lsSet(v){ try { if (v) localStorage.setItem(STORE, v); else localStorage.removeItem(STORE); } catch(e){} }
 function plural(n, one, many){ return n + ' ' + (n === 1 ? one : (many || one + 's')); }
@@ -422,6 +559,7 @@ function lobbyHTML(d){
     (v.prize ? '<div class="prize">' + TROPHY + '<span>Tonight’s prize: ' + esc(v.prize) + '</span></div>' : '') +
     '</div>' +
     '<div class="right"><div class="qrcard">' + qrSVG('qr') + '<div class="url">brewtrivia.com</div>' +
+      '<div class="qhint">Pick <b>' + esc(v.name) + '</b> and name your team</div>' +
       (v.code ? '<div class="code">Venue code ' + esc(v.code) + '</div>' : '') + '</div></div>' +
     '<div class="wall"><div class="count" id="wallCount"></div><div class="chips" id="chips"></div></div></section>';
 }
@@ -443,6 +581,7 @@ function updateLobby(d){
   }
   for (i = 0; i < teams.length; i++) S.seen[teams[i].name] = 1;
   $('#chips').innerHTML = h;
+  fitLobby();
 }
 
 /* ---------- question ---------- */
@@ -564,8 +703,9 @@ function rowHTML(x, top, i){
 }
 function boardHTML(teams){
   if (!teams.length) return '<div class="hint">No teams yet.</div>';
-  var list = ranked(teams), max = 14, shown = list.slice(0, max);
-  var cols = shown.length > 7 ? 2 : 1;
+  var tall = S.mode === 'tall';
+  var list = ranked(teams), max = tall ? 10 : 14, shown = list.slice(0, max);
+  var cols = !tall && shown.length > 7 ? 2 : 1;
   var rows = cols === 1 ? Math.max(shown.length, 5) : Math.max(Math.ceil(shown.length / 2), 5);
   var top = Math.max(0, teams[0].score), h = '', i;
   for (i = 0; i < shown.length; i++) h += rowHTML(shown[i], top, i);
@@ -599,7 +739,7 @@ function finishedHTML(d){
   }
   var top = teams[0].score, winners = teams.filter(function(t){ return t.score === top; }), tie = winners.length > 1;
   var players = winners.reduce(function(a, t){ return a + (t.players || 0); }, 0);
-  var rest = ranked(teams).filter(function(x){ return x.t.score !== top; }).slice(0, 7), h = '', i;
+  var rest = ranked(teams).filter(function(x){ return x.t.score !== top; }).slice(0, S.mode === 'tall' ? 5 : 7), h = '', i;
   for (i = 0; i < rest.length; i++) h += rowHTML(rest[i], top, i + 2);
   return '<section class="fin enter"><div class="champ">' +
       '<div class="eyebrow">' + (tie ? 'Tied for first' : 'Tonight’s winner') + '</div>' +
@@ -616,16 +756,16 @@ function showSetup(){
   document.body.classList.add('setup-mode');
   $('#venueName').textContent = ''; $('#sep').hidden = true; $('#tracker').innerHTML = ''; $('#foot').innerHTML = ''; $('#conn').hidden = true;
   $('#scene').innerHTML = '<section class="setup enter"><div class="eyebrow">TV screen</div><h1>Show trivia on the TV</h1>' +
-    '<p>Choose your venue. This screen follows the game by itself: guests see each question, never the host controls. No sign-in.</p>' +
-    '<input id="search" class="search" placeholder="Search venues" autocomplete="off" spellcheck="false">' +
+    '<p>Choose your venue. This screen follows the game by itself: guests see each question, never the host controls. No sign‑in.</p>' +
+    '<input id="search" class="search" placeholder="Search venues" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
     '<div class="vlist" id="vlist"><div class="hint">Loading venues…</div></div>' +
-    '<p class="tip">Then press <kbd>F</kbd> for full screen. Move the mouse anytime to change venue.</p></section>';
+    '<p class="tip">' + setupTip() + '</p></section>';
   var input = $('#search');
   input.addEventListener('input', function(){ listVenues(input.value); });
   input.addEventListener('keydown', function(e){
     if (e.key === 'Enter') { var b = document.querySelector('.vbtn'); if (b) b.click(); }
   });
-  setTimeout(function(){ input.focus(); }, 50);
+  if (!TOUCH) setTimeout(function(){ input.focus(); }, 50);   // no surprise keyboard on iPad
   loadVenues().then(function(){ listVenues(input.value); }).catch(function(){
     $('#vlist').innerHTML = '<div class="hint">Can’t reach BrewTrivia. Check the internet connection and reload.</div>';
   });
@@ -695,10 +835,26 @@ function fitAll(){
   if (wrap) fit($('#qtext'), 9.4, 4.4, function(){ return wrap.clientHeight; });
   var tf = document.querySelector('.answers.tf');
   Array.prototype.forEach.call(document.querySelectorAll('.tile .txt'), function(el){ fit(el, tf ? 8 : 4.8, 2.4); });
-  fit($('#champName'), 14, 6);
+  fit($('#champName'), S.mode === 'tall' ? 11 : 14, 6);
+  fitLobby();
   growBars();
 }
-window.addEventListener('resize', fitAll);
+/* The QR card takes whatever room is left; on an upright iPad the step list gives way to a one-line hint. */
+function fitLobby(){
+  var sec = document.querySelector('.lobby');
+  if (!sec) return;
+  var right = sec.querySelector('.right'), card = sec.querySelector('.qrcard'), qr = card && card.querySelector('.qr');
+  if (!right || !qr) return;
+  var u = U(), base = S.mode === 'wide' ? 34 : 30, size = base;
+  function room(){ var cs = getComputedStyle(right); return right.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom); }
+  function setQ(n){ size = n; qr.style.width = qr.style.height = (n * u).toFixed(1) + 'px'; }
+  function shrink(min){ setQ(base); var g = 40; while (g-- > 0 && size > min && card.offsetHeight > room() + 0.5) setQ(size - 1); }
+  sec.classList.remove('compact');
+  shrink(24);
+  if (S.mode === 'tall' && card.offsetHeight > room() + 0.5) { sec.classList.add('compact'); shrink(16); }
+}
+window.addEventListener('resize', layout);
+window.addEventListener('orientationchange', function(){ setTimeout(layout, 250); });
 if (document.fonts) {
   if (document.fonts.ready) document.fonts.ready.then(fitAll);
   if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fitAll);
@@ -713,31 +869,56 @@ function wake(){
     }
   } catch(e){}
 }
+function fsElement(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+function canFull(){
+  var el = document.documentElement;
+  if (STANDALONE) return false;                       // opened from the Home Screen: already full screen
+  if (!(el.requestFullscreen || el.webkitRequestFullscreen)) return false;
+  return document.fullscreenEnabled !== false && document.webkitFullscreenEnabled !== false;
+}
 function toggleFull(){
   try {
-    if (document.fullscreenElement) document.exitFullscreen();
-    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
+    if (fsElement()) {
+      if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    } else {
+      var el = document.documentElement, r = null;
+      if (el.requestFullscreen) r = el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) r = el.webkitRequestFullscreen();
+      if (r && r.catch) r.catch(function(){});
+    }
   } catch(e){}
   wake();
 }
-var idleT = null;
+function setupTip(){
+  if (!TOUCH) return 'Then press <kbd>F</kbd> for full screen. Move the mouse anytime to change venue.';
+  var t = 'Tap the screen anytime to change venue' + (canFull() ? ' or go full screen.' : '.');
+  if (IS_IOS && !STANDALONE) t += ' On iPad, tap <b>Share → Add to Home Screen</b> and open it from there for a clean full screen.';
+  return t;
+}
+var idleT = null, shownAt = 0;
 function active(){
+  if (!document.body.classList.contains('active')) shownAt = Date.now();
   document.body.classList.add('active'); document.body.classList.remove('idle');
   clearTimeout(idleT);
-  idleT = setTimeout(function(){ document.body.classList.remove('active'); document.body.classList.add('idle'); }, 2500);
+  idleT = setTimeout(function(){ document.body.classList.remove('active'); document.body.classList.add('idle'); }, TOUCH ? 5000 : 2500);
+  if (TOUCH) wake();
 }
+// On a touch screen the first tap only shows the buttons, so it can't press one by accident.
+function guarded(fn){ return function(e){ if (TOUCH && Date.now() - shownAt < 450) return; fn(e); }; }
 ['mousemove', 'mousedown', 'touchstart'].forEach(function(ev){ window.addEventListener(ev, active, { passive: true }); });
 document.addEventListener('keydown', function(e){
   if (e.target && e.target.tagName === 'INPUT') return;
   if (e.key === 'f' || e.key === 'F') toggleFull();
   if (e.key === 'c' || e.key === 'C') showSetup();
 });
-$('#btnFull').addEventListener('click', toggleFull);
-$('#btnVenue').addEventListener('click', showSetup);
+$('#btnFull').hidden = !canFull();
+$('#btnFull').addEventListener('click', guarded(toggleFull));
+$('#btnVenue').addEventListener('click', guarded(showSetup));
 document.addEventListener('visibilitychange', function(){ if (!document.hidden) { wake(); if (S.venueId) poll(); } });
 
 /* ---------- start ---------- */
 function boot(){
+  layout();
   var p = new URLSearchParams(window.location.search);
   var id = p.get('venue') || lsGet();
   var code = p.get('code');
