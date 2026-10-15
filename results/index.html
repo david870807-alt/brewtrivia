@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BrewTrivia Results</title>
+<meta name="description" content="Every BrewTrivia game night at a venue: winners, scores and full standings.">
+<meta name="theme-color" content="#0A1330">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230A1330'/%3E%3Cpath d='M150 172h212v40h-86v168h-40V212h-86z' fill='%23E8A93C'/%3E%3Ccircle cx='256' cy='418' r='14' fill='%233FA093'/%3E%3Cpath d='M120 130c40-22 232-22 272 0' stroke='%233FA093' stroke-width='14' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0A1330; --deep:#0F1D45; --card:#16265A; --line:#283B75;
+  --gold:#E8A93C; --gold-soft:rgba(232,169,60,.14); --brick:#C8492D; --teal:#3FA093;
+  --cream:#F5EBD9; --muted:#93A4CE;
+  --display:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --body:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{min-height:100vh;background:var(--night);color:var(--cream);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased;
+  background:radial-gradient(120% 60% at 10% 0%, #15275E 0%, var(--night) 60%) fixed, var(--night)}
+a{color:var(--gold)}
+button{font:inherit;color:inherit}
+.wrap{max-width:880px;margin:0 auto;padding:max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--cream);min-width:0}
+.brand svg{width:20px;height:28px;flex:0 0 auto}
+.brand span{font-family:var(--display);font-size:26px;line-height:1;white-space:nowrap}
+.brand b{font-weight:400;color:var(--gold)}
+.change{background:none;border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;min-height:40px}
+.change:hover{border-color:var(--gold);color:var(--cream)}
+
+.hero{margin-top:28px}
+.eyebrow{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:600}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(40px, 9vw, 64px);line-height:1;margin-top:8px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin-top:10px;font-size:16px}
+.sub b{color:var(--cream);font-weight:600}
+
+.fame{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px}
+.fame .f{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--gold-soft);border:1px solid rgba(232,169,60,.35);min-width:0;max-width:100%}
+.fame .f svg{width:20px;height:20px;color:var(--gold);flex:0 0 auto}
+.fame .f span{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.fame .f small{color:var(--muted);font-weight:500;white-space:nowrap}
+
+.nights{margin-top:28px;display:flex;flex-direction:column;gap:16px}
+.night{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 18px 8px;min-width:0}
+.night.live{border-color:var(--teal)}
+.nhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ndate{font-family:var(--display);font-size:28px;line-height:1.1}
+.nmeta{color:var(--muted);font-size:14px;font-weight:500}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:rgba(63,160,147,.18);color:var(--teal);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle;margin-left:8px}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{50%{opacity:.3}}
+
+.podium{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.podium li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--deep);border:1px solid var(--line);min-width:0}
+.podium li.p1{border-color:var(--gold);background:linear-gradient(90deg, rgba(232,169,60,.22), rgba(232,169,60,.05))}
+.podium .rk{font-family:var(--display);font-size:24px;width:26px;text-align:center;color:var(--muted);line-height:1;flex:0 0 auto}
+.podium .p1 .rk{color:var(--gold)}
+.podium .nm{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.podium .pl{color:var(--muted);font-size:13px;white-space:nowrap}
+.podium .sc{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+details{margin-top:6px}
+summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 2px;color:var(--muted);font-weight:600;font-size:14px;min-height:44px}
+summary::-webkit-details-marker{display:none}
+summary svg{width:16px;height:16px;transition:transform .2s}
+details[open] summary svg{transform:rotate(90deg)}
+summary:hover{color:var(--cream)}
+.table{width:100%;border-collapse:collapse;margin:2px 0 12px;font-size:15px}
+.table td{padding:9px 6px;border-top:1px solid var(--line)}
+.table td.r{width:34px;color:var(--muted);font-variant-numeric:tabular-nums}
+.table td.n{font-weight:600;word-break:break-word}
+.table td.p{color:var(--muted);font-size:13px;white-space:nowrap;width:1%}
+.table td.s{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;width:1%;white-space:nowrap}
+
+.alltime{margin-top:16px}
+.alltime h2{font-family:var(--display);font-weight:400;font-size:28px;line-height:1.1}
+.alltime .table th{padding:10px 6px 6px;text-align:left;color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.alltime .table th.s,.alltime .table td.c{text-align:right;white-space:nowrap;width:1%}
+.alltime .table td.c{color:var(--muted);font-variant-numeric:tabular-nums}
+.alltime .table tr.top td.n{color:var(--gold)}
+
+.empty,.err{margin-top:28px;padding:24px;border-radius:20px;border:1px dashed var(--line);color:var(--muted);text-align:center}
+.spin{width:36px;height:36px;margin:40px auto;border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.pick{margin-top:24px}
+.search{width:100%;font:600 16px var(--body);padding:14px 16px;border-radius:14px;background:var(--deep);border:1px solid var(--line);color:var(--cream);outline:none}
+.search:focus{border-color:var(--gold)}
+.search::placeholder{color:var(--muted);opacity:.75}
+.vlist{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.vbtn{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:var(--card);border:1px solid var(--line);
+  cursor:pointer;text-align:left;font-weight:600;min-height:52px}
+.vbtn small{color:var(--muted);font-weight:500;font-size:13px;white-space:nowrap}
+.vbtn:hover,.vbtn:focus-visible{border-color:var(--gold);outline:none}
+
+footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+footer a{color:var(--muted)}
+.ver{letter-spacing:.08em;font-weight:600}
+
+@media (min-width:640px){
+  .night{padding:22px 24px 10px}
+  .podium{flex-direction:row}
+  .podium li{flex:1 1 0;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 16px}
+  .podium .nm{width:100%;font-size:17px}
+  .podium .rk{text-align:left}
+}
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{animation:none !important;transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="https://brewtrivia.com/">
+      <svg viewBox="0 0 30 42" aria-hidden="true">
+        <path d="M3 3 H27 L24.4 37.5 Q24.2 39.5 22.2 39.5 H7.8 Q5.8 39.5 5.6 37.5 Z" fill="none" stroke="#F5EBD9" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M5.3 13 H24.7 L23.2 36.8 Q23.1 37.8 22.1 37.8 H7.9 Q6.9 37.8 6.8 36.8 Z" fill="#E8A93C"/>
+        <path d="M4.6 9.5 Q7 6.8 9.4 9.5 Q11.8 6.8 14.2 9.5 Q16.6 6.8 19 9.5 Q21.4 6.8 23.8 9.5 L25.3 9.5 L25 13 H5 Z" fill="#F5EBD9"/>
+      </svg>
+      <span><b>Brew</b>Trivia</span>
+    </a>
+    <button type="button" class="change" id="change" hidden>Change venue</button>
+  </header>
+  <main id="main"><div class="spin" aria-label="Loading"></div></main>
+  <footer>
+    <span>Play at <a href="https://brewtrivia.com/">brewtrivia.com</a> · Spillin’ The Tea Trivia</span>
+    <span class="ver">BrewTrivia v2.0</span>
+  </footer>
+</div>
+<script>
+(function(){
+'use strict';
+/* BrewTrivia venue results (#11). Read-only: public key only, no sign-in. */
+var SB_URL = 'https://pnjefnkzqyrszfkxwwoj.supabase.co';
+var SB_KEY = 'sb_publishable_ZnI0_FldJEzkMiaYx1SMIQ_hc0uGBNP';
+var STORE = 'brewtrivia.results.venue';
+var TROPHY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 6h3v1.5A3.5 3.5 0 0 1 16.5 11M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M12 14v4M8.5 20h7"/></svg>';
+var CHEVRON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+var main = document.getElementById('main'), venues = null, timer = null;
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function plural(n, one, many){ return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+function lsGet(){ try { return localStorage.getItem(STORE); } catch(e){ return null; } }
+function lsSet(v){ try { if (v) localStorage.setItem(STORE, v); else localStorage.removeItem(STORE); } catch(e){} }
+function api(path, body){
+  return fetch(SB_URL + path, {
+    method: body ? 'POST' : 'GET',
+    headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined, cache: 'no-store'
+  }).then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+function loadVenues(){
+  if (venues) return Promise.resolve(venues);
+  return api('/rest/v1/venues?select=id,name,city,state,code,quiz_day,start_time&approved=eq.true&order=name.asc')
+    .then(function(v){ venues = v || []; return venues; });
+}
+function fmtDate(iso){
+  var p = String(iso).split('-'), d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+function ranked(list){
+  var out = [], rank = 0, prev = null, i;
+  for (i = 0; i < list.length; i++) {
+    if (prev === null || list[i].score !== prev) rank = i + 1;
+    prev = list[i].score;
+    out.push({ rank: rank, t: list[i] });
+  }
+  return out;
+}
+
+function show(id){
+  clearTimeout(timer);
+  lsSet(id);
+  try { var u = new URL(location.href); u.searchParams.delete('code'); u.searchParams.set('venue', id); history.replaceState(null, '', u.toString()); } catch(e){}
+  document.getElementById('change').hidden = false;
+  main.innerHTML = '<div class="spin" aria-label="Loading"></div>';
+  load(id);
+}
+function load(id){
+  api('/rest/v1/rpc/venue_results', { venue: id }).then(function(d){
+    if (!d) { lsSet(null); main.innerHTML = '<div class="err">This venue isn’t live on BrewTrivia.</div>'; return; }
+    render(d);
+    var live = (d.games || []).some(function(g){ return g.status !== 'finished'; });
+    if (live) timer = setTimeout(function(){ load(id); }, 15000);      // a game is on: keep the table fresh
+  }).catch(function(){
+    main.innerHTML = '<div class="err">Can’t reach BrewTrivia right now. Check the connection and reload.</div>';
+  });
+}
+
+function render(d){
+  var v = d.venue, games = d.games || [];
+  document.title = v.name + ' · BrewTrivia Results';
+  var where = [v.city, v.state].filter(Boolean).join(', ');
+  var when = v.quiz_day ? 'Trivia every <b>' + esc(v.quiz_day) + '</b>' + (v.start_time ? ' at <b>' + esc(v.start_time) + '</b>' : '') : '';
+  var done = games.filter(function(g){ return g.status === 'finished'; });
+  var h = '<section class="hero"><div class="eyebrow">Results</div><h1>' + esc(v.name) + '</h1>' +
+          '<p class="sub">' + [esc(where), when, done.length ? plural(done.length, 'game night') + ' played' : ''].filter(Boolean).join(' · ') + '</p>';
+
+  // Most wins across the finished nights
+  var wins = {}, names = [];
+  done.forEach(function(g){
+    var st = g.standings || [];
+    if (!st.length) return;
+    st.filter(function(t){ return t.score === st[0].score; }).forEach(function(t){
+      if (!wins[t.team]) { wins[t.team] = 0; names.push(t.team); }
+      wins[t.team]++;
+    });
+  });
+  names.sort(function(a, b){ return wins[b] - wins[a] || a.localeCompare(b); });
+  if (names.length && done.length > 1) {
+    h += '<div class="fame">' + names.slice(0, 3).map(function(n){
+      return '<div class="f">' + TROPHY + '<span>' + esc(n) + '</span><small>' + plural(wins[n], 'win') + '</small></div>';
+    }).join('') + '</div>';
+  }
+  h += '</section>';
+
+  if (!games.length) {
+    h += '<div class="empty">No finished game nights yet. Results show up here as soon as the host closes a game.</div>';
+    main.innerHTML = h;
+    return;
+  }
+  h += '<section class="nights">' + games.map(nightHTML).join('') + '</section>';
+  if (done.length > 1) h += allTimeHTML(done);
+  main.innerHTML = h;
+}
+/* All-time top teams across the finished nights (teams matched by name). */
+function allTimeHTML(done){
+  var by = {}, list = [];
+  done.forEach(function(g){
+    var st = g.standings || [], best = st.length ? st[0].score : null;
+    st.forEach(function(t){
+      var k = String(t.team || '').trim().toLowerCase();
+      if (!k) return;
+      if (!by[k]) { by[k] = { team: t.team, nights: 0, wins: 0, points: 0 }; list.push(by[k]); }
+      by[k].nights++; by[k].points += t.score || 0;
+      if (t.score === best) by[k].wins++;
+    });
+  });
+  list.sort(function(a, b){ return b.wins - a.wins || b.points - a.points || a.team.localeCompare(b.team); });
+  var rows = list.slice(0, 10).map(function(t, i){
+    return '<tr' + (i === 0 ? ' class="top"' : '') + '><td class="r">' + (i + 1) + '</td><td class="n">' + esc(t.team) + '</td>' +
+           '<td class="c">' + t.nights + '</td><td class="c">' + t.wins + '</td><td class="s">' + t.points + '</td></tr>';
+  }).join('');
+  return '<section class="night alltime"><h2>All-time top teams</h2><table class="table">' +
+         '<tr><th></th><th>Team</th><th class="s">Nights</th><th class="s">Wins</th><th class="s">Points</th></tr>' + rows + '</table></section>';
+}
+function nightHTML(g){
+  var st = ranked(g.standings || []), live = g.status !== 'finished';
+  var top = st.slice(0, 3), i, x, rows = '';
+  var pod = top.map(function(x){
+    return '<li class="' + (x.rank === 1 ? 'p1' : '') + '"><span class="rk">' + x.rank + '</span><span class="nm">' + esc(x.t.team) + '</span>' +
+           '<span class="pl">' + plural(x.t.players, 'player') + '</span><span class="sc">' + plural(x.t.score, 'pt') + '</span></li>';
+  }).join('');
+  for (i = 0; i < st.length; i++) {
+    x = st[i];
+    rows += '<tr><td class="r">' + x.rank + '</td><td class="n">' + esc(x.t.team) + '</td><td class="p">' + plural(x.t.players, 'player') + '</td><td class="s">' + x.t.score + '</td></tr>';
+  }
+  return '<article class="night' + (live ? ' live' : '') + '"><div class="nhead"><div class="ndate">' + esc(fmtDate(g.date)) +
+         (live ? '<span class="badge"><i></i>Live</span>' : '') + '</div>' +
+         '<div class="nmeta">' + plural(g.teams, 'team') + ' · ' + plural(g.players, 'player') + '</div></div>' +
+         (pod ? '<ol class="podium">' + pod + '</ol>' : '') +
+         (st.length > 3 ? '<details><summary>' + CHEVRON + 'Full standings</summary><table class="table">' + rows + '</table></details>' : '<div style="height:10px"></div>') +
+         '</article>';
+}
+
+function showPicker(){
+  clearTimeout(timer);
+  lsSet(null);
+  document.getElementById('change').hidden = true;
+  main.innerHTML = '<section class="hero"><div class="eyebrow">Results</div><h1>Game night results</h1>' +
+    '<p class="sub">Pick a venue to see every game night: winners, scores and full standings.</p></section>' +
+    '<section class="pick"><input id="search" class="search" placeholder="Search venues" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+    '<div class="vlist" id="vlist"><div class="empty">Loading venues…</div></div></section>';
+  var input = document.getElementById('search');
+  input.addEventListener('input', function(){ list(input.value); });
+  loadVenues().then(function(){ list(''); }).catch(function(){
+    document.getElementById('vlist').innerHTML = '<div class="err">Can’t reach BrewTrivia right now.</div>';
+  });
+}
+function list(q){
+  var box = document.getElementById('vlist');
+  if (!box || !venues) return;
+  q = (q || '').trim().toLowerCase();
+  var l = venues.filter(function(v){ return !q || (v.name + ' ' + v.city + ' ' + v.state + ' ' + v.code).toLowerCase().indexOf(q) !== -1; });
+  if (!l.length) { box.innerHTML = '<div class="empty">' + (venues.length ? 'No venue matches “' + esc(q) + '”.' : 'No venues yet.') + '</div>'; return; }
+  box.innerHTML = l.map(function(v){
+    var where = [v.city, v.state].filter(Boolean).join(', ');
+    var when = v.quiz_day ? v.quiz_day.slice(0, 3) + (v.start_time ? ' ' + v.start_time : '') : '';
+    return '<button type="button" class="vbtn" data-id="' + esc(v.id) + '"><span>' + esc(v.name) + '</span><small>' + esc([where, when].filter(Boolean).join(' · ')) + '</small></button>';
+  }).join('');
+  Array.prototype.forEach.call(box.querySelectorAll('.vbtn'), function(b){ b.addEventListener('click', function(){ show(b.getAttribute('data-id')); }); });
+}
+
+document.getElementById('change').addEventListener('click', showPicker);
+var p = new URLSearchParams(location.search), id = p.get('venue'), code = p.get('code');
+var uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+if (code && !id) {
+  loadVenues().then(function(vs){
+    var m = vs.filter(function(v){ return (v.code || '').toUpperCase() === code.toUpperCase(); })[0];
+    if (m) show(m.id); else showPicker();
+  }).catch(showPicker);
+} else {
+  id = id || lsGet();
+  if (id && uuid.test(id)) show(id); else showPicker();
+}
+})();
+</script>
+</body>
+</html>
