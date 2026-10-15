@@ -5,6 +5,12 @@
 >   **https://david870807-alt.github.io/brewtrivia/tv/** — open it on the laptop plugged into the bar TV,
 >   pick the venue once (or add `?venue=<venue id>` to the link), press **F** for full screen.
 >   It reads the Supabase RPC `tv_state(venue)` with the public key only, so no one signs in on the TV.
+> - **Results page** (`results/index.html`): every finished game night per venue (podium, full standings),
+>   most wins and all-time top teams, at **https://david870807-alt.github.io/brewtrivia/results/?code=<venue code>**.
+>   It reads the public RPC `venue_results(venue)`.
+> - **v2.0 server** (`supabase/migrations/20261015_brewtrivia_v2_server.sql`, applied 2026-10-15): the v2 host app calls
+>   `host_game2` (open any time, `reveal`, `end`) and `game_state2`; v1 keeps calling `host_game` / `game_state`.
+>   The Reveal step is per venue (`venues.manual_reveal`, off until the v2 host screen ships).
 > - The root page just redirects to brewtrivia.com. The original v1 app (described below) is
 >   kept in git history at commit `95e08ec`; it no longer matches the live database schema.
 
