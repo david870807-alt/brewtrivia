@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BrewTrivia Results</title>
+<meta name="theme-color" content="#0A1330">
+<meta name="description" content="Every BrewTrivia game night at a venue: winners, full standings and the all-time top teams.">
+<link rel="icon" href="../tv/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="../tv/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#0A1330; --deep:#0F1D45; --card:#16265A; --card2:#1B2D66; --line:#283B75;
+  --gold:#E8A93C; --gold-soft:rgba(232,169,60,.16); --brick:#C8492D; --teal:#3FA093;
+  --cream:#F5EBD9; --muted:#93A4CE;
+  --display:'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --body:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --pad:clamp(16px, 4vw, 40px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--night)}
+body{min-height:100vh;color:var(--cream);font:16px/1.5 var(--body);-webkit-font-smoothing:antialiased;
+  background:radial-gradient(120% 60% at 10% 0%, #15275E 0%, var(--night) 60%) no-repeat, var(--night)}
+a{color:var(--gold)}
+.wrap{max-width:1040px;margin:0 auto;padding:max(18px, env(safe-area-inset-top)) max(var(--pad), env(safe-area-inset-right)) 48px max(var(--pad), env(safe-area-inset-left))}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 22px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--cream);min-width:0}
+.brand svg{width:20px;height:28px;flex:0 0 auto}
+.word{font-family:var(--display);font-size:26px;line-height:1;white-space:nowrap}
+.word b{font-weight:400;color:var(--gold)}
+.sep{width:2px;height:20px;background:var(--line);flex:0 0 auto}
+.crumb{font-weight:600;color:var(--muted);white-space:nowrap}
+.change{font:600 14px var(--body);color:var(--cream);background:rgba(22,38,90,.9);border:1px solid var(--line);border-radius:99px;padding:9px 16px;cursor:pointer;white-space:nowrap}
+.change:hover{border-color:var(--gold)}
+
+/* intro */
+.eyebrow{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(40px, 7vw, 68px);line-height:1;margin-top:8px;letter-spacing:-.01em}
+.meta{color:var(--muted);margin-top:10px;font-weight:500}
+.meta b{color:var(--cream);font-weight:600}
+
+/* stat tiles */
+.tiles{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px;margin-top:26px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;min-width:0}
+.tile .n{font-family:var(--display);font-size:40px;line-height:1}
+.tile .l{color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
+.tile.champ .n{font-family:var(--body);font-size:20px;font-weight:700;line-height:1.2;color:var(--gold);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.tile.champ .sub{color:var(--muted);font-size:13px;margin-top:2px}
+
+.live{margin-top:20px;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:16px;background:rgba(63,160,147,.14);border:1px solid rgba(63,160,147,.5);font-weight:600}
+.live .dot{width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(63,160,147,.6);animation:ping 1.6s infinite;flex:0 0 auto}
+@keyframes ping{70%{box-shadow:0 0 0 10px rgba(63,160,147,0)}100%{box-shadow:0 0 0 0 rgba(63,160,147,0)}}
+.live a{margin-left:auto;white-space:nowrap}
+
+/* sections */
+h2{font-family:var(--display);font-weight:400;font-size:32px;line-height:1.1;margin:40px 0 14px}
+.hint{color:var(--muted);padding:18px;background:var(--card);border:1px dashed var(--line);border-radius:16px}
+
+/* game nights */
+.night{background:var(--card);border:1px solid var(--line);border-radius:18px;margin-bottom:12px;overflow:hidden}
+.night[open]{border-color:rgba(232,169,60,.55)}
+.night summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;padding:16px 18px}
+.night summary::-webkit-details-marker{display:none}
+.date{display:flex;flex-direction:column;align-items:center;justify-content:center;width:62px;height:62px;border-radius:14px;background:var(--deep);border:1px solid var(--line);flex:0 0 auto}
+.date .m{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.date .d{font-family:var(--display);font-size:30px;line-height:1}
+.win{min-width:0}
+.win .who{font-weight:700;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.win .who svg{width:18px;height:18px;vertical-align:-3px;margin-right:6px;color:var(--gold)}
+.win .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.chev{width:22px;height:22px;color:var(--muted);transition:transform .2s}
+.night[open] .chev{transform:rotate(180deg)}
+.board{padding:0 18px 18px;display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:var(--deep);border:1px solid var(--line)}
+.row .rk{font-family:var(--display);font-size:24px;line-height:1;color:var(--muted)}
+.row .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .pl{color:var(--muted);font-size:13px;white-space:nowrap}
+.row .sc{font-weight:700;font-variant-numeric:tabular-nums;min-width:36px;text-align:right}
+.row.first{border-color:var(--gold);background:linear-gradient(90deg, rgba(232,169,60,.22), rgba(232,169,60,.05))}
+.row.first .rk{color:var(--gold)}
+
+/* all-time table */
+.alltime{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.at-head,.at-row{display:grid;grid-template-columns:40px minmax(0,1fr) 64px 56px 72px 64px;align-items:center;gap:10px;padding:12px 18px}
+.at-head{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--line)}
+.at-row + .at-row{border-top:1px solid rgba(40,59,117,.6)}
+.at-row .rk{font-family:var(--display);font-size:22px;color:var(--muted)}
+.at-row.top .rk{color:var(--gold)}
+.at-row .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.at-row .num b{color:var(--gold)}
+
+/* venue picker */
+.picker{margin-top:22px;display:flex;flex-direction:column;gap:10px;max-width:640px}
+.search{font:600 17px var(--body);padding:14px 18px;border-radius:14px;background:var(--deep);border:2px solid var(--line);color:var(--cream);outline:none;width:100%}
+.search:focus{border-color:var(--gold)}
+.search::placeholder{color:var(--muted);opacity:.75}
+.vbtn{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;background:var(--card);border:2px solid var(--line);
+  color:var(--cream);font:600 18px var(--body);cursor:pointer;text-align:left;width:100%}
+.vbtn small{font-size:14px;color:var(--muted);font-weight:500;white-space:nowrap}
+.vbtn:hover,.vbtn:focus-visible{border-color:var(--gold);outline:none}
+
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
+.foot b{color:var(--cream)}
+.spin{width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp .9s linear infinite;margin:40px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media (max-width: 760px){
+  .tiles{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .at-head,.at-row{grid-template-columns:30px minmax(0,1fr) 48px 64px;padding:12px 14px}
+  .at-head .c-nights,.at-row .c-nights,.at-head .c-best,.at-row .c-best{display:none}
+  .row{grid-template-columns:28px minmax(0,1fr) auto}
+  .row .pl{display:none}
+  .crumb{display:none}
+  .sep{display:none}
+}
+@media (max-width: 380px){
+  .word{font-size:22px}
+  .vbtn{flex-direction:column;align-items:flex-start;gap:4px}
+}
+@media (prefers-reduced-motion: reduce){ *{animation:none !important;transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="https://brewtrivia.com/">
+      <svg viewBox="0 0 30 42" aria-hidden="true">
+        <path d="M3 3 H27 L24.4 37.5 Q24.2 39.5 22.2 39.5 H7.8 Q5.8 39.5 5.6 37.5 Z" fill="none" stroke="#F5EBD9" stroke-opacity=".7" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M5.3 13 H24.7 L23.2 36.8 Q23.1 37.8 22.1 37.8 H7.9 Q6.9 37.8 6.8 36.8 Z" fill="#E8A93C"/>
+        <path d="M4.6 9.5 Q7 6.8 9.4 9.5 Q11.8 6.8 14.2 9.5 Q16.6 6.8 19 9.5 Q21.4 6.8 23.8 9.5 L25.3 9.5 L25 13 H5 Z" fill="#F5EBD9"/>
+      </svg>
+      <span class="word"><b>Brew</b>Trivia</span><span class="sep"></span><span class="crumb">Results</span>
+    </a>
+    <button type="button" class="change" id="change" hidden>Change venue</button>
+  </header>
+  <main id="app"><div class="spin" aria-label="Loading"></div></main>
+  <footer class="foot">
+    <span>Play at <b>brewtrivia.com</b>. No app to download.</span>
+    <span>Points from every venue count toward the BrewTrivia national ranking.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+var SB_URL = 'https://pnjefnkzqyrszfkxwwoj.supabase.co';
+var SB_KEY = 'sb_publishable_ZnI0_FldJEzkMiaYx1SMIQ_hc0uGBNP';
+var STORE = 'brewtrivia.results.venue';
+var TROPHY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 6h3v1.5A3.5 3.5 0 0 1 16.5 11M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M12 14v4M8.5 20h7"/></svg>';
+var CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+var venues = null;
+
+function $(s){ return document.querySelector(s); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function plural(n, one, many){ return n + ' ' + (n === 1 ? one : (many || one + 's')); }
+function lsGet(){ try { return localStorage.getItem(STORE); } catch(e){ return null; } }
+function lsSet(v){ try { localStorage.setItem(STORE, v); } catch(e){} }
+function api(path){
+  return fetch(SB_URL + path, { headers: { 'apikey': SB_KEY, 'Accept': 'application/json' }, cache: 'no-store' })
+    .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+function loadVenues(){
+  if (venues) return Promise.resolve(venues);
+  return api('/rest/v1/venues?select=id,name,city,state,code,quiz_day,start_time&approved=eq.true&order=name.asc')
+    .then(function(v){ venues = v || []; return venues; });
+}
+function day(iso){ var p = String(iso).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function longDate(iso){ return day(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }); }
+function venueToday(){
+  // BrewTrivia's game day runs until 6 AM (US East), like the server's venue_today().
+  try {
+    var s = new Date(Date.now() - 6 * 3600e3).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  } catch(e){}
+  return new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 10);
+}
+function ranked(list){
+  var out = [], rank = 0, prev = null;
+  list.forEach(function(t, i){ if (prev === null || t.score !== prev) rank = i + 1; prev = t.score; out.push({ rank: rank, t: t }); });
+  return out;
+}
+function setUrl(id){
+  try { var u = new URL(location.href); u.searchParams.delete('code'); u.searchParams.set('venue', id); history.replaceState(null, '', u.toString()); } catch(e){}
+}
+
+/* ---------- venue picker ---------- */
+function showPicker(){
+  $('#change').hidden = true;
+  $('#app').innerHTML = '<div class="eyebrow">Results</div><h1>Pick a venue</h1>' +
+    '<p class="meta">See every game night: winners, full standings and the all-time top teams.</p>' +
+    '<div class="picker"><input class="search" id="q" placeholder="Search venues" autocomplete="off" autocapitalize="off" spellcheck="false">' +
+    '<div id="vlist"><div class="spin"></div></div></div>';
+  var q = $('#q');
+  q.addEventListener('input', function(){ listVenues(q.value); });
+  loadVenues().then(function(){ listVenues(''); }).catch(function(){
+    $('#vlist').innerHTML = '<div class="hint">Can’t reach BrewTrivia right now. Check the connection and reload.</div>';
+  });
+}
+function listVenues(q){
+  q = (q || '').trim().toLowerCase();
+  var list = venues.filter(function(v){ return !q || (v.name + ' ' + v.city + ' ' + v.state + ' ' + v.code).toLowerCase().indexOf(q) !== -1; });
+  var box = $('#vlist');
+  if (!list.length) { box.innerHTML = '<div class="hint">' + (venues.length ? 'No venue matches “' + esc(q) + '”.' : 'No venues are live on BrewTrivia yet.') + '</div>'; return; }
+  box.innerHTML = list.map(function(v){
+    var where = [v.city, v.state].filter(Boolean).join(', ');
+    var when = v.quiz_day ? v.quiz_day.slice(0, 3) + (v.start_time ? ' ' + v.start_time : '') : '';
+    return '<button type="button" class="vbtn" data-id="' + esc(v.id) + '" style="margin-top:10px"><span>' + esc(v.name) + '</span><small>' +
+      esc([where, when].filter(Boolean).join(' · ')) + '</small></button>';
+  }).join('');
+  Array.prototype.forEach.call(box.querySelectorAll('.vbtn'), function(b){
+    b.addEventListener('click', function(){ open(b.getAttribute('data-id')); });
+  });
+}
+
+/* ---------- one venue ---------- */
+function open(id){
+  lsSet(id); setUrl(id);
+  $('#change').hidden = false;
+  $('#app').innerHTML = '<div class="spin" aria-label="Loading"></div>';
+  Promise.all([
+    loadVenues(),
+    api('/rest/v1/games?select=game_date,status,finished_at&venue_id=eq.' + encodeURIComponent(id) + '&order=game_date.desc'),
+    api('/rest/v1/scores?select=team_name,players,score,game_date,played_at&venue_id=eq.' + encodeURIComponent(id) +
+        '&order=game_date.desc,score.desc,played_at.asc&limit=5000')
+  ]).then(function(res){
+    var v = res[0].filter(function(x){ return x.id === id; })[0];
+    if (!v) { showPicker(); return; }
+    render(v, res[1] || [], res[2] || []);
+  }).catch(function(){
+    $('#app').innerHTML = '<div class="hint">Can’t reach BrewTrivia right now. Check the connection and reload.</div>';
+  });
+}
+
+function render(v, games, scores){
+  document.title = v.name + ' · BrewTrivia Results';
+  var byDate = {};
+  scores.forEach(function(s){ (byDate[s.game_date] = byDate[s.game_date] || []).push(s); });
+  var nights = games.filter(function(g){ return g.status === 'finished' && byDate[g.game_date] && byDate[g.game_date].length; })
+                    .map(function(g){ return { date: g.game_date, teams: byDate[g.game_date] }; });
+  var today = venueToday();
+  var live = games.filter(function(g){ return g.status !== 'finished' && g.game_date >= today; })[0];
+
+  // all-time table (teams matched by name)
+  var agg = {}, entries = 0, players = 0;
+  nights.forEach(function(n){
+    var top = n.teams.length ? n.teams[0].score : null;
+    n.teams.forEach(function(t){
+      entries++; players += t.players || 0;
+      var k = String(t.team_name).trim().toLowerCase();
+      var a = agg[k] || (agg[k] = { name: t.team_name, nights: 0, wins: 0, total: 0, best: null });
+      a.nights++; a.total += t.score; a.best = a.best === null ? t.score : Math.max(a.best, t.score);
+      if (t.score === top && top > 0) a.wins++;
+    });
+  });
+  var allTime = Object.keys(agg).map(function(k){ return agg[k]; })
+    .sort(function(a, b){ return b.wins - a.wins || b.total - a.total || b.best - a.best; });
+  var champ = allTime.filter(function(a){ return a.wins > 0; })[0];
+
+  var where = [v.city, v.state].filter(Boolean).join(', ');
+  var when = v.quiz_day ? 'Trivia <b>' + esc(v.quiz_day) + (v.start_time ? ' at ' + esc(v.start_time) : '') + '</b>' : '';
+  var h = '<div class="eyebrow">Results</div><h1>' + esc(v.name) + '</h1>' +
+    '<p class="meta">' + [esc(where), when].filter(Boolean).join(' · ') + '</p>';
+
+  if (live) {
+    h += '<div class="live"><span class="dot"></span><span>Trivia is on right now.</span>' +
+         '<a href="../tv/?venue=' + encodeURIComponent(v.id) + '">Follow it live →</a></div>';
+  }
+
+  h += '<div class="tiles">' +
+    '<div class="tile"><div class="n">' + nights.length + '</div><div class="l">' + (nights.length === 1 ? 'Game night' : 'Game nights') + '</div></div>' +
+    '<div class="tile"><div class="n">' + entries + '</div><div class="l">Teams played</div></div>' +
+    '<div class="tile"><div class="n">' + players + '</div><div class="l">Players</div></div>' +
+    '<div class="tile champ"><div class="n">' + (champ ? esc(champ.name) : '—') + '</div><div class="sub">' +
+      (champ ? plural(champ.wins, 'win') : 'No winner yet') + '</div><div class="l">Most wins</div></div>' +
+  '</div>';
+
+  h += '<h2>Game nights</h2>';
+  if (!nights.length) h += '<div class="hint">No finished game nights yet. Results show up here as soon as the host ends a game.</div>';
+  nights.forEach(function(n, i){
+    var r = ranked(n.teams), top = r[0], d = day(n.date);
+    var winners = r.filter(function(x){ return x.rank === 1; });
+    var who = winners.map(function(x){ return esc(x.t.team_name); }).join(' & ');
+    var tPlayers = n.teams.reduce(function(s, t){ return s + (t.players || 0); }, 0);
+    h += '<details class="night"' + (i === 0 ? ' open' : '') + '><summary>' +
+      '<div class="date"><span class="m">' + d.toLocaleDateString('en-US', { month: 'short' }) + '</span><span class="d">' + d.getDate() + '</span></div>' +
+      '<div class="win"><div class="who">' + TROPHY + who + '</div><div class="sub">' + longDate(n.date) + ' · ' +
+        (winners.length > 1 ? 'tied at ' : '') + plural(top.t.score, 'point') + ' · ' + plural(n.teams.length, 'team') + ' · ' + plural(tPlayers, 'player') + '</div></div>' +
+      CHEV + '</summary><div class="board">' +
+      r.map(function(x){
+        return '<div class="row' + (x.rank === 1 ? ' first' : '') + '"><span class="rk">' + x.rank + '</span><span class="nm">' + esc(x.t.team_name) + '</span>' +
+          '<span class="pl">' + plural(x.t.players || 0, 'player') + '</span><span class="sc">' + x.t.score + '</span></div>';
+      }).join('') + '</div></details>';
+  });
+
+  if (allTime.length) {
+    h += '<h2>All-time top teams</h2><div class="alltime"><div class="at-head"><span>#</span><span>Team</span>' +
+      '<span class="num c-nights">Nights</span><span class="num">Wins</span><span class="num">Points</span><span class="num c-best">Best</span></div>' +
+      allTime.slice(0, 15).map(function(a, i){
+        return '<div class="at-row' + (i === 0 && a.wins ? ' top' : '') + '"><span class="rk">' + (i + 1) + '</span><span class="nm">' + esc(a.name) + '</span>' +
+          '<span class="num c-nights">' + a.nights + '</span><span class="num">' + (a.wins ? '<b>' + a.wins + '</b>' : '0') + '</span>' +
+          '<span class="num">' + a.total + '</span><span class="num c-best">' + a.best + '</span></div>';
+      }).join('') + '</div>';
+  }
+  $('#app').innerHTML = h;
+}
+
+$('#change').addEventListener('click', showPicker);
+
+function boot(){
+  var p = new URLSearchParams(location.search);
+  var id = p.get('venue'), code = p.get('code');
+  var uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (code && !id) {
+    loadVenues().then(function(vs){
+      var m = vs.filter(function(v){ return (v.code || '').toUpperCase() === code.toUpperCase(); })[0];
+      if (m) open(m.id); else showPicker();
+    }).catch(showPicker);
+    return;
+  }
+  id = id || lsGet();
+  if (id && uuid.test(id)) open(id); else showPicker();
+}
+boot();
+})();
+</script>
+</body>
+</html>

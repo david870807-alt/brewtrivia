@@ -219,6 +219,47 @@ body.active .controls{opacity:1;pointer-events:auto}
 .controls button:hover{border-color:var(--gold)}
 .controls button[hidden]{display:none}
 
+/* ---------- final question: standings beside the question ---------- */
+.rail.final{justify-content:flex-start;gap:calc(var(--u)*1.6)}
+.rail.final .status{min-height:calc(var(--u)*17)}
+.mcount{font-size:calc(var(--u)*2);color:var(--muted);font-weight:500;text-align:center}
+.mcount b{color:var(--cream);font-weight:700}
+.miniboard{width:100%;display:flex;flex-direction:column;gap:calc(var(--u)*.8);min-height:0;overflow:hidden}
+.miniboard .hd{font-size:calc(var(--u)*1.7);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:calc(var(--u)*.2)}
+.mrow{display:flex;align-items:center;gap:calc(var(--u)*1.2);padding:calc(var(--u)*.9) calc(var(--u)*1.4);border-radius:calc(var(--u)*1.2);
+  background:var(--card);border:1px solid var(--line);font-size:calc(var(--u)*2.1);font-weight:600;flex:0 0 auto}
+.mrow .rk{font-family:var(--display);font-size:calc(var(--u)*2.7);color:var(--muted);width:calc(var(--u)*2.6);line-height:1;flex:0 0 auto}
+.mrow .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow .sc{font-variant-numeric:tabular-nums;font-weight:700;flex:0 0 auto}
+.mrow.lead{border-color:var(--gold)}
+.mrow.lead .rk{color:var(--gold)}
+.mfoot{font-size:calc(var(--u)*1.8);color:var(--muted)}
+
+/* ---------- final reveal: every team's answer, wager and points ---------- */
+.frev{display:flex;flex-direction:column;min-height:0}
+.frev-ans{font-family:var(--display);font-weight:400;font-size:calc(var(--u)*7.4);line-height:1.02;margin-top:calc(var(--u)*1.2);color:var(--teal);
+  max-height:calc(var(--u)*16);overflow:hidden}
+.frev-note{font-size:calc(var(--u)*2.2);color:var(--muted);margin-top:calc(var(--u)*1)}
+.frev-board{margin-top:calc(var(--u)*2.6);flex:0 1 auto;min-height:0;display:grid;grid-auto-flow:column;grid-template-columns:repeat(var(--cols,1),minmax(0,1fr));
+  grid-template-rows:repeat(var(--rows,1),auto);column-gap:calc(var(--u)*3);row-gap:calc(var(--u)*1.1);align-content:start;overflow:hidden;position:relative}
+.frow{display:grid;grid-template-columns:calc(var(--u)*4.4) minmax(0,1fr) auto calc(var(--u)*10);align-items:center;column-gap:calc(var(--u)*1.8);
+  padding:calc(var(--u)*1.1) calc(var(--u)*2.2);border-radius:calc(var(--u)*1.6);background:var(--card);border:2px solid var(--line);
+  animation:enter .4s cubic-bezier(.2,.7,.2,1) backwards}
+.frow .rk{font-family:var(--display);font-size:calc(var(--u)*3.8);color:var(--muted);line-height:1}
+.frow .who{min-width:0;display:flex;flex-direction:column;gap:calc(var(--u)*.3)}
+.frow .nm{font-size:calc(var(--u)*2.9);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frow .said{font-size:calc(var(--u)*1.9);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frow .said b{color:var(--cream);font-weight:600}
+.frow .pt{font-size:calc(var(--u)*3.2);font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.frow .pt.plus{color:var(--teal)}
+.frow .pt.minus{color:var(--brick)}
+.frow .pt.zero{color:var(--muted)}
+.frow .sc{font-size:calc(var(--u)*3.4);font-weight:700;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.frow .sc small{font-size:calc(var(--u)*1.8);color:var(--muted);font-weight:600}
+.frow.lead{border-color:var(--gold);background:linear-gradient(90deg, rgba(232,169,60,.22), rgba(232,169,60,.05))}
+.frow.lead .rk{color:var(--gold)}
+.frev .more{font-size:calc(var(--u)*2.1);color:var(--muted);margin-top:calc(var(--u)*1.4)}
+
 /* ---------- 4:3 and 3:2 screens: iPad landscape, iPad mirrored to a TV ---------- */
 .m-mid .lobby{grid-template-columns:1fr calc(var(--u)*40);column-gap:calc(var(--u)*5)}
 .m-mid .headline{font-size:calc(var(--u)*8.8)}
@@ -303,6 +344,13 @@ body.active .controls{opacity:1;pointer-events:auto}
 .m-tall .foot > span:first-child{flex:1 1 auto;min-width:0}
 .m-tall .miniqr > span{display:none}
 .m-tall .miniqr .qr{width:calc(var(--u)*9.4);height:calc(var(--u)*9.4)}
+.m-tall .rail.final{align-items:stretch}
+.m-tall .rail.final .status{flex:0 0 auto;min-height:0;flex-direction:column;align-items:flex-start;width:calc(var(--u)*21)}
+.m-tall .rail.final .mcount{display:none}
+.m-tall .miniboard{flex:1 1 auto;min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:calc(var(--u)*.8)}
+.m-tall .miniboard .hd,.m-tall .mfoot{grid-column:1 / -1}
+.m-tall .frev-ans{font-size:calc(var(--u)*6.4)}
+.m-tall .frow{padding:calc(var(--u)*1) calc(var(--u)*1.8);column-gap:calc(var(--u)*1.4);grid-template-columns:calc(var(--u)*4) minmax(0,1fr) auto calc(var(--u)*9)}
 
 /* ---------- touch screens (iPad, phones): finger-sized controls, no keyboard hints ---------- */
 .touch .controls{right:max(16px, env(safe-area-inset-right));bottom:max(16px, env(safe-area-inset-bottom));gap:10px}
@@ -478,7 +526,10 @@ function poll(){
 function sceneOf(d){
   if (d.status === 'finished') return 'finished';
   if (d.status === 'standings') return 'standings';
-  if ((d.status === 'open' || d.status === 'closing') && d.question) return 'q';
+  if ((d.status === 'open' || d.status === 'closing') && d.question) {
+    if (d.is_final && d.locked && d.final_answers) return 'finalrev';
+    return 'q';
+  }
   return 'lobby';
 }
 function phaseOf(d){
@@ -501,6 +552,7 @@ function apply(d){
   var scene = sceneOf(d), key;
   if (scene === 'q') key = 'q|' + d.question.id;
   else if (scene === 'standings') key = 'st|' + d.idx;
+  else if (scene === 'finalrev') key = 'fr|' + d.question.id;
   else if (scene === 'lobby') key = 'lobby|' + d.status;
   else key = scene;
   if (key !== S.key) {
@@ -508,11 +560,13 @@ function apply(d){
     if (scene === 'lobby') render(lobbyHTML(d), footPlay(false));
     else if (scene === 'q') render(questionHTML(d), footPlay(true));
     else if (scene === 'standings') render(standingsHTML(d), footPlay(true));
+    else if (scene === 'finalrev') render(finalRevHTML(d), S.mode === 'tall' ? '<span>Tonight’s points count toward the <b>BrewTrivia national ranking</b>.</span>' : footPlay(true));
     else render(finishedHTML(d), footFinished());
   }
   if (scene === 'lobby') updateLobby(d);
   else if (scene === 'q') updateQuestion(d);
   else if (scene === 'standings') updateStandings(d);
+  else if (scene === 'finalrev') updateFinalRev(d);
 }
 
 function render(html, foot){
@@ -597,7 +651,7 @@ function questionHTML(d){
 
   if (t === 'num') {
     body = '<div class="numpanel" id="numpanel"><div class="hash">#</div><div><div class="say">Type your number on your phone</div>' +
-           '<div class="sub">Exact answers score</div></div></div>';
+           '<div class="sub">Closest answer wins</div></div></div>';
   } else {
     ans = q.answers || [];
     cls = t === 'tf' ? 'tf' : (ans.length === 3 ? 'c3' : '');
@@ -611,8 +665,10 @@ function questionHTML(d){
   }
   return '<section class="q enter" id="q"><div class="main"><div class="qhead">' + head + '</div>' +
     '<div class="qwrap" id="qwrap"><h2 class="qtext" id="qtext">' + esc(q.text) + '</h2></div>' + body + '</div>' +
-    '<aside class="rail"><div class="status" id="qstatus"></div>' + glassSVG() +
-    '<div class="meter"><div class="val" id="meterVal"></div><div class="lab" id="meterLab"></div></div></aside></section>';
+    (d.is_final
+      ? '<aside class="rail final"><div class="status" id="qstatus"></div><div class="mcount" id="mcount"></div><div class="miniboard" id="mini"></div></aside>'
+      : '<aside class="rail"><div class="status" id="qstatus"></div>' + glassSVG() +
+        '<div class="meter"><div class="val" id="meterVal"></div><div class="lab" id="meterLab"></div></div></aside>') + '</section>';
 }
 function updateQuestion(d){
   var phase = phaseOf(d), box = $('#q');
@@ -634,6 +690,11 @@ function updateQuestion(d){
       st.innerHTML = CHECK + '<div class="st-main">The answer</div>';
     }
   }
+  if (d.is_final) {                       // the final shows standings while teams pick their wager
+    updateMini(d);
+    if (phase === 'reveal') showReveal(d);
+    return;
+  }
   if (phase === 'reveal') {
     showReveal(d);
     var r = d.reveal || {}, got = r.correct_count || 0;
@@ -650,9 +711,12 @@ function showReveal(d){
   var r = d.reveal, q = d.question;
   if (!r) return;
   if (q.type === 'num') {
-    var tol = Number(r.num_tolerance) || 0;
+    var tol = Number(r.num_tolerance) || 0, w = r.winners || [];
+    var exact = w.some(function(x){ return Number(x) === Number(r.correct_num); });
+    var say = w.length && !exact ? 'Winning guess' + (w.length > 1 ? 'es' : '') + ': ' + w.map(fmtNum).join(' · ') : '';
+    var sub = tol > 0 ? 'Anything within ±' + fmtNum(tol) + ' counts' : (say ? 'Closest answer wins' : '');
     $('#numpanel').innerHTML = '<div class="ans">' + fmtNum(r.correct_num) + '</div>' +
-      (tol > 0 ? '<div><div class="say">Anything within ±' + fmtNum(tol) + ' counts</div></div>' : '');
+      (say || sub ? '<div>' + (say ? '<div class="say">' + say + '</div>' : '') + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>' : '');
     return;
   }
   var ok = q.type === 'multi' ? (r.correct_set || []) : [r.correct];
@@ -677,6 +741,83 @@ function tickCountdown(){
   }
 }
 setInterval(tickCountdown, 200);
+
+/* ---------- final question extras ---------- */
+function miniHTML(d){
+  var teams = d.teams || [], max = S.mode === 'tall' ? 4 : 7, list = ranked(teams).slice(0, max), i, x;
+  var h = '<div class="hd">Standings</div>';
+  if (!list.length) return h + '<div class="mfoot">No teams yet.</div>';
+  for (i = 0; i < list.length; i++) {
+    x = list[i];
+    h += '<div class="mrow' + (x.rank === 1 && x.t.score > 0 ? ' lead' : '') + '"><span class="rk">' + x.rank + '</span>' +
+         '<span class="nm">' + esc(x.t.name) + '</span><span class="sc">' + x.t.score + '</span></div>';
+  }
+  if (teams.length > max) h += '<div class="mfoot">+ ' + plural(teams.length - max, 'more team') + '</div>';
+  return h;
+}
+function updateMini(d){
+  var c = $('#mcount');
+  if (c) c.innerHTML = '<b>' + d.answered + '</b>/' + d.team_count + ' ' + (d.team_count === 1 ? 'team' : 'teams') + ' answered';
+  var sig = JSON.stringify(d.teams || []) + '|' + S.mode;
+  if (sig === S.teamSig) return;
+  S.teamSig = sig;
+  var m = $('#mini');
+  if (m) m.innerHTML = miniHTML(d);
+}
+function answerText(d){
+  var q = d.question, r = d.reveal || {}, a = q.answers || [];
+  if (q.type === 'num') return fmtNum(r.correct_num);
+  if (q.type === 'multi') return (r.correct_set || []).map(function(i){ return esc(a[i]); }).join(' + ');
+  return esc(a[r.correct]);
+}
+function finalRevHTML(d){
+  var q = d.question, r = d.reveal || {}, note = '';
+  if (q.type === 'num') {
+    var tol = Number(r.num_tolerance) || 0;
+    note = tol > 0 ? 'Anything within ±' + fmtNum(tol) + ' counts' : 'Closest answer wins';
+  }
+  return '<section class="frev enter"><div class="eyebrow">Final question · the answer</div>' +
+    '<h1 class="frev-ans" id="frAns">' + answerText(d) + '</h1>' + (note ? '<div class="frev-note">' + note + '</div>' : '') +
+    '<div class="frev-board" id="frBoard"></div><div class="more" id="frMore" hidden></div></section>';
+}
+function updateFinalRev(d){
+  var list = d.final_answers || [];
+  var sig = JSON.stringify(list) + '|' + S.mode;
+  if (sig === S.boardSig) return;
+  S.boardSig = sig;
+  var tall = S.mode === 'tall', box = $('#frBoard'), more = $('#frMore');
+  if (!list.length) { box.innerHTML = '<div class="hint">No team answered the final.</div>'; more.hidden = true; return; }
+  // Show as many rows as fit; the rest go into "+ N more teams".
+  for (var max = tall ? 8 : 10; max >= 3; max--) {
+    drawFinalRows(list, max, tall, box, more);
+    // layout positions only (the rows' entrance animation moves them for a moment)
+    var bottom = Array.prototype.reduce.call(box.children, function(m, el){ return Math.max(m, el.offsetTop + el.offsetHeight); }, 0);
+    if (bottom <= box.clientHeight + 1) break;
+  }
+}
+function drawFinalRows(list, max, tall, box, more){
+  var shown = list.slice(0, max);
+  var cols = !tall && shown.length > 5 ? 2 : 1, rows = Math.max(1, Math.ceil(shown.length / cols));
+  var h = '', i, t, rank = 0, prev = null, pts, cls, said;
+  for (i = 0; i < shown.length; i++) {
+    t = shown[i];
+    if (prev === null || t.score !== prev) rank = i + 1;
+    prev = t.score;
+    if (t.answer == null) { said = 'No answer'; pts = '—'; cls = 'zero'; }
+    else {
+      said = '<b>' + esc(t.answer) + '</b> · wager ' + t.wager;
+      pts = t.points > 0 ? '+' + t.points : (t.points < 0 ? '−' + Math.abs(t.points) : '0');
+      cls = t.points > 0 ? 'plus' : (t.points < 0 ? 'minus' : 'zero');
+    }
+    h += '<div class="frow' + (rank === 1 && t.score > 0 ? ' lead' : '') + '" style="animation-delay:' + (0.08 + i * 0.05).toFixed(2) + 's">' +
+      '<span class="rk">' + rank + '</span><span class="who"><span class="nm">' + esc(t.name) + '</span><span class="said">' + said + '</span></span>' +
+      '<span class="pt ' + cls + '">' + pts + '</span><span class="sc">' + t.score + '<small> pts</small></span></div>';
+  }
+  box.style.setProperty('--cols', cols); box.style.setProperty('--rows', rows);
+  box.innerHTML = h;
+  more.hidden = list.length <= max;
+  if (list.length > max) more.textContent = '+ ' + plural(list.length - max, 'more team');
+}
 
 /* ---------- standings ---------- */
 function ranked(teams){
@@ -836,6 +977,7 @@ function fitAll(){
   var tf = document.querySelector('.answers.tf');
   Array.prototype.forEach.call(document.querySelectorAll('.tile .txt'), function(el){ fit(el, tf ? 8 : 4.8, 2.4); });
   fit($('#champName'), S.mode === 'tall' ? 11 : 14, 6);
+  fit($('#frAns'), S.mode === 'tall' ? 6.4 : 7.4, 3.4);
   fitLobby();
   growBars();
 }
